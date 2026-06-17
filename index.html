@@ -1,183 +1,262 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZeroFat - Ekip Takip</title>
+    <title>ZeroFat Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-6 font-sans">
+<body class="bg-[#0b0f19] text-[#f3f4f6] min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-400">
 
-    <div class="max-w-md mx-auto space-y-6">
-        <h1 class="text-2xl font-bold text-center text-emerald-400">🔥 ZeroFat - Ekip Takip</h1>
+    <header class="border-b border-gray-800/60 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">ZEROFAT</span>
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/20">v2.0</span>
+            </div>
+            
+            <div id="userProfile" class="hidden flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">Oturum Açık</p>
+                    <p id="kullaniciMail" class="text-sm font-medium text-gray-200">...</p>
+                </div>
+                <button onclick="cikisYap()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-lg border border-rose-500/20 transition cursor-pointer">Çıkış Yap</button>
+            </div>
+        </div>
+    </header>
 
-        <div id="authEkranı" class="bg-gray-800 p-6 rounded-xl shadow space-y-4">
-            <h2 class="text-lg font-semibold text-center text-gray-300">Sisteme Giriş Yap</h2>
+    <main class="max-w-5xl mx-auto p-4 md:p-8 space-y-8">
 
-            <button onclick="googleIleGirisYap()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-gray-100 text-gray-900 font-bold p-3 rounded-lg transition shadow-md cursor-pointer">
+        <div id="authEkranı" class="max-w-md mx-auto bg-[#111827]/40 border border-gray-800/80 p-8 rounded-2xl shadow-2xl backdrop-blur-xl space-y-6 mt-12">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-bold tracking-tight text-gray-100">Geliştirici Paneli</h2>
+                <p class="text-sm text-gray-400">Devam etmek için Google hesabınla kimlik doğrulaması yap.</p>
+            </div>
+            
+            <button onclick="googleIleGirisYap()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-gray-100 text-gray-900 font-bold p-3 rounded-xl transition shadow-lg cursor-pointer transform active:scale-[0.98]">
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#EA4335" d="M12 5.04c1.62 0 3.08.56 4.22 1.66l3.15-3.15C17.45 1.68 14.93 1 12 1 7.28 1 3.26 3.72 1.3 7.69l3.75 2.91C5.93 7.43 8.72 5.04 12 5.04z" />
-                    <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.57l3.75 2.91c2.2-2.03 3.7-5.02 3.7-8.63z" />
-                    <path fill="#FBBC05" d="M5.05 14.4C4.81 13.66 4.68 12.87 4.68 12s.13-1.66.37-2.4L1.3 6.69C.47 8.35 0 10.12 0 12s.47 3.65 1.3 5.31l3.75-2.91z" />
-                    <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.75-2.91c-1.11.75-2.53 1.19-4.21 1.19-3.28 0-6.07-2.39-7.06-5.56l-3.75 2.91C3.26 20.28 7.28 23 12 23z" />
+                    <path fill="#EA4335" d="M12 5.04c1.62 0 3.08.56 4.22 1.66l3.15-3.15C17.45 1.68 14.93 1 12 1 7.28 1 3.26 3.72 1.3 7.69l3.75 2.91C5.93 7.43 8.72 5.04 12 5.04z"/>
+                    <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.57l3.75 2.91c2.2-2.03 3.7-5.02 3.7-8.63z"/>
+                    <path fill="#FBBC05" d="M5.05 14.4C4.81 13.66 4.68 12.87 4.68 12s.13-1.66.37-2.4L1.3 6.69C.47 8.35 0 10.12 0 12s.47 3.65 1.3 5.31l3.75-2.91z"/>
+                    <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.75-2.91c-1.11.75-2.53 1.19-4.21 1.19-3.28 0-6.07-2.39-7.06-5.56l-3.75 2.91C3.26 20.28 7.28 23 12 23z"/>
                 </svg>
-                <span>Google ile Giriş Yap</span>
+                <span>Google ile Doğrula</span>
             </button>
-
-            <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-gray-700"></div>
-                <span class="flex-shrink mx-4 text-gray-500 text-xs uppercase">Veya Klasik Giriş</span>
-                <div class="flex-grow border-t border-gray-700"></div>
-            </div>
-
-            <input type="email" id="authEmail" class="w-full p-3 bg-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="E-posta adresin">
-            <input type="password" id="authSifre" class="w-full p-3 bg-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Şifren">
-
-            <div class="flex space-x-2">
-                <button onclick="girisYap()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 p-3 rounded-lg font-bold text-sm transition cursor-pointer">Giriş Yap</button>
-                <button onclick="kayitOl()" class="flex-1 bg-gray-600 hover:bg-gray-700 p-3 rounded-lg font-bold text-sm transition cursor-pointer">Kayıt Ol</button>
-            </div>
         </div>
 
-        <div id="anaEkran" class="hidden space-y-6">
-            <div class="flex justify-between items-center bg-gray-800 p-3 rounded-xl text-xs text-gray-400">
-                <span id="kullaniciMail">...</span>
-                <button onclick="cikisYap()" class="text-red-400 hover:underline cursor-pointer">Çıkış Yap</button>
-            </div>
-
-            <div class="bg-gray-800 p-4 rounded-xl shadow">
-                <label class="block text-sm font-medium mb-2">Bugünkü Kilo (kg)</label>
-                <input type="number" id="kiloInput" step="0.1" class="w-full p-3 bg-gray-700 rounded-lg text-white font-bold text-xl text-center focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="111.2">
-            </div>
-
-            <div class="bg-gray-800 p-4 rounded-xl shadow space-y-4">
-                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Bugünün Görevleri</h2>
-
-                <div id="gorevListesi" class="space-y-3">
-                    <label class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg cursor-pointer">
-                        <input type="checkbox" id="yuruyus" class="w-6 h-6 rounded text-emerald-500">
-                        <span class="text-lg">🏃‍♂️ 45 Dk Aç Karnına Yürüyüş</span>
-                    </label>
-                    <label class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg cursor-pointer">
-                        <input type="checkbox" id="dambil" class="w-6 h-6 rounded text-emerald-500">
-                        <span class="text-lg">🏋️‍♂️ Dambıl Antrenmanı</span>
-                    </label>
+        <div id="anaEkran" class="hidden space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-[#111827]/40 border border-gray-800/60 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div class="flex items-center space-x-3 text-emerald-400">
+                        <span class="p-2 bg-emerald-500/10 rounded-lg">⚖️</span>
+                        <span class="font-semibold text-gray-200">Mevcut Kütle</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="kiloInput" step="0.1" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="00.0">
+                        <span class="absolute right-4 top-5 text-xs font-bold text-gray-500">KG</span>
+                    </div>
                 </div>
 
-                <div class="flex space-x-2 pt-2 border-t border-gray-700">
-                    <input type="text" id="yeniGorevInput" class="flex-1 p-2 bg-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Yeni görev ekle...">
-                    <button onclick="yeniGorevEkle()" class="bg-emerald-500 hover:bg-emerald-600 px-4 rounded-lg font-bold text-sm cursor-pointer">+</button>
+                <div class="bg-[#111827]/40 border border-gray-800/60 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div class="flex items-center space-x-3 text-amber-400">
+                        <span class="p-2 bg-amber-500/10 rounded-lg">🔥</span>
+                        <span class="font-semibold text-gray-200">Enerji Alımı</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="kaloriInput" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="0000">
+                        <span class="absolute right-4 top-5 text-xs font-bold text-gray-500">KCAL</span>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/60 p-6 rounded-2xl shadow-xl flex flex-col justify-end">
+                    <button onclick="veriyiSupabaseKaydet()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-[0.98] transition text-white font-bold p-4 rounded-xl text-md shadow-lg shadow-emerald-500/10 cursor-pointer">
+                        Günlük Veriyi Senkronize Et
+                    </button>
                 </div>
             </div>
 
-            <button onclick="veriyiSupabaseKaydet()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition text-white font-bold p-4 rounded-xl text-lg shadow-lg cursor-pointer">
-                Günü Buluta Kaydet
-            </button>
+            <div class="bg-[#111827]/20 border border-gray-800/60 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800/60 pb-3">
+                    <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Günlük Operasyonel Görevler</span>
+                    <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md font-mono" id="gorevSayac">0 / 2 Yapıldı</span>
+                </div>
+                
+                <div id="gorevListesi" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
+                        <span class="flex items-center space-x-3">
+                            <input type="checkbox" id="yuruyus" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer">
+                            <span class="text-gray-200 group-hover:text-white transition">🏃‍♂️ 45 Dk Aç Karnına Yürüyüş</span>
+                        </span>
+                        <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
+                        <span class="flex items-center space-x-3">
+                            <input type="checkbox" id="dambil" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer">
+                            <span class="text-gray-200 group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
+                        </span>
+                        <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
+                    </label>
+                </div>
+
+                <div class="flex space-x-2 max-w-md pt-2">
+                    <input type="text" id="yeniGorevInput" class="flex-1 p-3 bg-[#111827]/60 border border-gray-700/40 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="Örn: 3 Litre Su Tüketimi">
+                    <button onclick="yeniGorevEkle()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700/60 px-5 rounded-xl font-bold text-sm transition cursor-pointer">+</button>
+                </div>
+            </div>
+
+            <div class="bg-[#111827]/20 border border-gray-800/60 rounded-2xl p-6 shadow-xl space-y-4">
+                <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider block">Tarihsel Log Kayıtları</span>
+                
+                <div class="overflow-x-auto rounded-xl border border-gray-800/80">
+                    <table class="w-full text-left border-collapse bg-[#111827]/40">
+                        <thead>
+                            <tr class="border-b border-gray-800 bg-[#111827]/80 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                <th class="p-4">Tarih</th>
+                                <th class="p-4">Kütle (KG)</th>
+                                <th class="p-4">Kalori (KCAL)</th>
+                                <th class="p-4">Yürüyüş</th>
+                                <th class="p-4">Dambıl</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTabloGövde" class="divide-y divide-gray-800/60 text-sm text-gray-300">
+                            <tr>
+                                <td colspan="5" class="p-4 text-center text-gray-500 font-mono text-xs">Veritabanından veriler senkronize ediliyor...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </main>
 
     <script>
-        const SUPABASE_URL = "https://gczhnuorlvowujvdhxgf.supabase.co";
+        const SUPABASE_URL = "https://gczhnuorlvowujvdhxgf.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_FlrcsVgMZGCmpiTXz2mZuA_O4TP_phx";
 
-        // Global nesne çakışmasını önleyen güvenli client başlatma
         const sClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         window.onload = async function () {
             const { data: { session } } = await sClient.auth.getSession();
             oturumAyarla(session);
+            if(session) {
+                tabloyuDoldur();
+                sayacGuncelle();
+            }
         }
 
         function oturumAyarla(session) {
             if (session) {
                 document.getElementById('authEkranı').classList.add('hidden');
                 document.getElementById('anaEkran').classList.remove('hidden');
-                document.getElementById('kullaniciMail').innerText = `Giriş yapıldı: ${session.user.email}`;
+                document.getElementById('userProfile').classList.remove('hidden');
+                document.getElementById('kullaniciMail').innerText = session.user.email;
             } else {
                 document.getElementById('authEkranı').classList.remove('hidden');
                 document.getElementById('anaEkran').classList.add('hidden');
+                document.getElementById('userProfile').classList.add('hidden');
             }
         }
 
-        // GOOGLE ILE GIRIS FONKSIYONU
         async function googleIleGirisYap() {
-            const { data, error } = await sClient.auth.signInWithOAuth({
+            await sClient.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: window.location.href // Giriş yapınca yine tam olarak bulunduğun sayfaya dönecek
-                }
+                options: { redirectTo: window.location.href }
             });
-            if (error) alert("Google giriş hatası: " + error.message);
         }
 
-        // Klasik Kayıt
-        async function kayitOl() {
-            const email = document.getElementById('authEmail').value;
-            const sifre = document.getElementById('authSifre').value;
-            if (!email || !sifre) { alert("Lütfen mail ve şifre gir cano!"); return; }
-
-            const { data, error } = await sClient.auth.signUp({ email, password: sifre });
-            if (error) alert("Kayıt hatası: " + error.message);
-            else alert("Kayıt başarılı! Mail kutunu kontrol et veya direkt giriş yapmayı dene.");
-        }
-
-        // Klasik Giriş
-        async function girisYap() {
-            const email = document.getElementById('authEmail').value;
-            const sifre = document.getElementById('authSifre').value;
-            if (!email || !sifre) { alert("Lütfen mail ve şifre gir cano!"); return; }
-
-            const { data, error } = await sClient.auth.signInWithPassword({ email, password: sifre });
-            if (error) alert("Giriş hatası: " + error.message);
-            else oturumAyarla(data.session);
-        }
-
-        // Çıkış Yapma
         async function cikisYap() {
             await sClient.auth.signOut();
             oturumAyarla(null);
         }
 
-        // Dinamik Görev Ekleme
+        function sayacGuncelle() {
+            const checkboxes = document.querySelectorAll('#gorevListesi input[type="checkbox"]');
+            let yapilan = 0;
+            
+            checkboxes.forEach(cb => {
+                const label = cb.closest('label').querySelector('.durum-label');
+                if(cb.checked) {
+                    yapilan++;
+                    label.innerText = "Yapıldı";
+                    label.className = "text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md durum-label";
+                } else {
+                    label.innerText = "Bekliyor";
+                    label.className = "text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label";
+                }
+            });
+            document.getElementById('gorevSayac').innerText = `${yapilan} / ${checkboxes.length} Yapıldı`;
+        }
+
         function yeniGorevEkle() {
             const input = document.getElementById('yeniGorevInput');
             const gorevMetni = input.value.trim();
-            if (gorevMetni === "") return;
+            if(gorevMetni === "") return;
 
             const liste = document.getElementById('gorevListesi');
             const yeniID = "id_" + Date.now();
             const yeniGorevHTML = `
-                    <label class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg cursor-pointer">
-                        <input type="checkbox" id="${yeniID}" class="w-6 h-6 rounded text-emerald-500 ek-gorev">
-                        <span class="text-lg">✨ ${gorevMetni}</span>
-                    </label>
-                `;
+                <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
+                    <span class="flex items-center space-x-3">
+                        <input type="checkbox" id="${yeniID}" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer ek-gorev">
+                        <span class="text-gray-200 group-hover:text-white transition">✨ ${gorevMetni}</span>
+                    </span>
+                    <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
+                </label>
+            `;
             liste.insertAdjacentHTML('beforeend', yeniGorevHTML);
             input.value = "";
+            sayacGuncelle();
         }
 
-        // Veriyi Supabase'e Gönderme
+        async function tabloyuDoldur() {
+            const { data, error } = await sClient
+                .from('sprint_takip')
+                .select('*')
+                .order('id', { ascending: false });
+
+            const tabloGövde = document.getElementById('logTabloGövde');
+            
+            if (error || !data || data.length === 0) {
+                tabloGövde.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-600 font-mono text-xs">Henüz doğrulanmış bir veri kaydı bulunamadı.</td></tr>`;
+                return;
+            }
+
+            tabloGövde.innerHTML = "";
+            data.forEach(row => {
+                const kaloriDegeri = row.kalori ? `${row.kalori} kcal` : '---';
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/20 transition font-mono text-xs";
+                tr.innerHTML = `
+                    <td class="p-4 text-gray-400">${row.tarih || '---'}</td>
+                    <td class="p-4 font-bold text-emerald-400">${row.kilo} kg</td>
+                    <td class="p-4 text-amber-400">${kaloriDegeri}</td>
+                    <td class="p-4">${row.yuruyus === 'Yapıldı' ? '✅' : '❌'}</td>
+                    <td class="p-4">${row.dambil === 'Yapıldı' ? '✅' : '❌'}</td>
+                `;
+                tabloGövde.appendChild(tr);
+            });
+        }
+
         async function veriyiSupabaseKaydet() {
             const kilo = document.getElementById('kiloInput').value;
+            const kalori = document.getElementById('kaloriInput').value;
             const yuruyusYapildi = document.getElementById('yuruyus').checked;
             const dambilYapildi = document.getElementById('dambil').checked;
             const tarih = new Date().toLocaleDateString('tr-TR');
 
-            if (!kilo) {
-                alert("Kilonu girmeyi unuttun cano!");
-                return;
-            }
+            if (!kilo) { alert("Lütfen kütle bilgisini gir cano!"); return; }
 
             const { data: { user } } = await sClient.auth.getUser();
-
-            // Ekstra eklenen dinamik görevlerin durumunu metin olarak birleştirelim
-            let ekGorevRaporu = "";
-            document.querySelectorAll('.ek-gorev').forEach(el => {
-                const gorevAdi = el.nextElementSibling.innerText;
-                const durum = el.checked ? "Yapıldı" : "Yapılmadı";
-                ekGorevRaporu += `${gorevAdi}: ${durum} | `;
-            });
 
             const { error } = await sClient
                 .from('sprint_takip')
@@ -185,6 +264,7 @@
                     {
                         user_id: user.id,
                         kilo: parseFloat(kilo),
+                        kalori: kalori ? parseInt(kalori) : null,
                         yuruyus: yuruyusYapildi ? "Yapıldı" : "Yapılmadı",
                         dambil: dambilYapildi ? "Yapıldı" : "Yapılmadı",
                         tarih: tarih
@@ -192,9 +272,12 @@
                 ]);
 
             if (error) {
-                alert("Veri kaydedilemedi: " + error.message);
+                alert("Veri senkronizasyon hatası: " + error.message);
             } else {
-                alert("Mükemmel! Verilerin ZeroFat veritabanına tıkır tıkır yazıldı.");
+                alert("Senkronizasyon Başarılı! Günlük veriler bulut tablosuna işlendi.");
+                document.getElementById('kiloInput').value = "";
+                document.getElementById('kaloriInput').value = "";
+                tabloyuDoldur();
             }
         }
     </script>
