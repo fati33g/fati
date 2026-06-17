@@ -21,27 +21,27 @@
             <div class="flex items-start space-x-3.5">
                 <span class="text-2xl">⚠️</span>
                 <div class="space-y-1">
-                    <p class="font-bold text-base text-gray-100">Verileri Sıfırlama Onayı</p>
-                    <p class="text-sm text-gray-400 font-medium leading-relaxed">Emin misin cano? Tüm geçmiş kayıtların ve grafik verilerin buluttan kalıcı olarak silinecek! Bu işlem geri alınamaz.</p>
+                    <p class="font-bold text-base text-gray-100">Veri Sıfırlama Onayı</p>
+                    <p class="text-sm text-gray-400 font-medium leading-relaxed">Tüm geçmiş kayıtlarınız ve grafik verileriniz veritabanından kalıcı olarak silinecektir. Bu işlem geri alınamaz.</p>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 text-xs font-bold pt-2">
                 <button onclick="modalKapat()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition cursor-pointer">İptal Et</button>
-                <button onclick="matrisiTamamenSifirla()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition shadow-lg shadow-rose-600/10 cursor-pointer">Evet, Tümünü Sil</button>
+                <button onclick="matrisiTamamenSifirla()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition shadow-lg cursor-pointer">Evet, Tümünü Sil</button>
             </div>
         </div>
     </div>
 
     <header class="border-b border-[#1e293b]/60 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm w-full overflow-x-hidden">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 w-full">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 w-full">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">ZEROFAT</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.06</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.07</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
                 <div class="text-left sm:text-right">
-                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Kullanıcı Profil</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Kullanıcı Profili</p>
                     <p id="kullaniciMail" class="text-xs sm:text-sm font-semibold text-gray-200 truncate max-w-[180px] sm:max-w-none">...</p>
                 </div>
                 <button onclick="cikisYap()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-2 rounded-xl border border-rose-500/20 transition cursor-pointer shrink-0">Oturumu Kapat</button>
@@ -49,12 +49,12 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-6 w-full overflow-x-hidden">
+    <main class="max-w-7xl mx-auto p-4 md:p-6 w-full overflow-x-hidden">
 
         <div id="authEkranı" class="max-w-md mx-auto bg-[#111827] border border-[#1e293b]/50 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 mt-12 sm:mt-16">
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-100">Sağlıklı Yaşama Başla</h2>
-                <p class="text-sm text-gray-400">Günlük kilo ve kalori takibini başlatmak için Google hesabınla giriş yap.</p>
+                <p class="text-sm text-gray-400">Günlük kilo ve kalori takibini başlatmak için Google hesabınızla giriş yapın.</p>
             </div>
             
             <button onclick="googleIleGirisYap()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-gray-100 text-gray-900 font-bold p-3.5 rounded-xl transition shadow-lg cursor-pointer transform active:scale-[0.99]">
@@ -68,7 +68,7 @@
             </button>
         </div>
 
-        <div id="anaEkran" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 w-full">
+        <div id="anaEkran" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 items-start w-full">
             
             <div class="lg:col-span-1 space-y-4 md:space-y-6 w-full">
                 <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-5 rounded-2xl shadow-md space-y-4">
@@ -95,6 +95,16 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="pt-1">
+                        <label class="text-xs text-gray-400 block mb-1">Haftalık Aktivite Seviyesi</label>
+                        <select id="profilAktivite" onchange="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-white font-medium cursor-pointer">
+                            <option value="1.2">Egzersiz Yok (Masa Başı İş)</option>
+                            <option value="1.375">Hafif Aktif (Haftada 1-3 Gün Spor)</option>
+                            <option value="1.55">Orta Aktif (Haftada 3-5 Gün Spor)</option>
+                            <option value="1.725">Çok Aktif (Haftada 6-7 Gün Ağır Spor)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="bg-gradient-to-br from-[#111827]/80 to-[#1e293b]/30 border border-[#1e293b]/40 p-5 rounded-2xl shadow-md space-y-4">
@@ -102,11 +112,11 @@
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3 font-medium">
                         <div class="bg-[#0f172a]/60 p-3 rounded-xl border border-gray-800/40">
-                            <p class="text-[11px] text-gray-400">Günlük Metabolizma Hızı (BMR)</p>
+                            <p class="text-[11px] text-gray-400">Günlük Enerji İhtiyacı (TDEE)</p>
                             <p id="bmrGosterge" class="text-lg font-bold text-[#38bdf8]">--- <span class="text-xs">kcal</span></p>
                         </div>
                         <div class="bg-[#0f172a]/60 p-3 rounded-xl border border-gray-800/40">
-                            <p class="text-[11px] text-gray-400">Hedefe Kalan Kilo</p>
+                            <p id="kalanKiloTipi" class="text-[11px] text-gray-400">Hedefe Kalan Kilo</p>
                             <p id="hedefeKalanGosterge" class="text-lg font-bold text-gray-200">--- <span class="text-xs">kg</span></p>
                         </div>
                         <div class="bg-[#0f172a]/60 p-3 rounded-xl border border-rose-500/10">
@@ -121,7 +131,7 @@
                 
                 <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4 w-full overflow-hidden">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-                        <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Gelişim Grafiğim</span>
+                        <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Gelişim Grafiği</span>
                         <button onclick="modalAc()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5">
                             <span>🗑️</span>
                             <span>Verileri Temizle</span>
@@ -155,7 +165,7 @@
 
                     <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-5 rounded-2xl flex flex-col justify-end shadow-md">
                         <button onclick="veriyiSupabaseKaydet()" class="w-full bg-gradient-to-r from-[#34d399] to-[#059669] hover:from-[#059669] hover:to-[#047857] active:scale-[0.99] transition text-white text-sm font-bold uppercase tracking-wider p-4 rounded-xl shadow-lg cursor-pointer">
-                            Günü Buluta Kaydet
+                            Günü Kaydet
                         </button>
                     </div>
                 </div>
@@ -191,7 +201,7 @@
                 </div>
 
                 <div class="bg-[#111827]/60 border border-[#1e293b]/40 rounded-2xl p-4 sm:p-6 shadow-md space-y-4 w-full overflow-hidden">
-                    <span class="text-sm font-bold text-gray-300 uppercase tracking-wider block">Geçmiş Günlük Kayıtlarım</span>
+                    <span class="text-sm font-bold text-gray-300 uppercase tracking-wider block">Geçmiş Günlük Kayıtlar</span>
                     
                     <div class="overflow-x-auto rounded-xl border border-gray-800 w-full">
                         <table class="w-full text-left border-collapse bg-[#111827]/30 min-w-[500px] sm:min-w-0">
@@ -205,7 +215,7 @@
                             </thead>
                             <tbody id="logTabloGövde" class="divide-y divide-gray-800 text-sm text-gray-200">
                                 <tr>
-                                    <td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Günlük verileriniz yükleniyor...</td>
+                                    <td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Günlük veriler yükleniyor...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -251,7 +261,6 @@
             }, 3500);
         }
 
-        // ORTADA AÇILAN MODAL KONTROLLERİ
         function modalAc() { document.getElementById('modalOverlay').classList.remove('hidden'); }
         function modalKapat() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
@@ -263,7 +272,7 @@
             if (error) {
                 showToast("Veriler silinemedi: " + error.message, "error");
             } else {
-                showToast("Tüm geçmiş verileriniz temizlendi.");
+                showToast("Tüm geçmiş veriler başarıyla temizlendi.");
                 document.querySelectorAll('.gorev-checkbox').forEach(cb => cb.checked = false);
                 localStorage.removeItem('zf_checkbox_durumlari');
                 tabloyuVeGrafigiYukle();
@@ -326,6 +335,7 @@
             localStorage.setItem('zf_profil_hedef', document.getElementById('profilHedef').value);
             localStorage.setItem('zf_profil_yas', document.getElementById('profilYas').value);
             localStorage.setItem('zf_profil_cinsiyet', document.getElementById('profilCinsiyet').value);
+            localStorage.setItem('zf_profil_aktivite', document.getElementById('profilAktivite').value);
             metabolizmaVeTahminHesapla();
         }
 
@@ -334,6 +344,7 @@
             document.getElementById('profilHedef').value = localStorage.getItem('zf_profil_hedef') || "";
             document.getElementById('profilYas').value = localStorage.getItem('zf_profil_yas') || "";
             document.getElementById('profilCinsiyet').value = localStorage.getItem('zf_profil_cinsiyet') || "erkek";
+            document.getElementById('profilAktivite').value = localStorage.getItem('zf_profil_aktivite') || "1.2";
         }
 
         function yerelGorevleriYukle() {
@@ -365,7 +376,7 @@
             dinamikGorevArayüzeEkle(gorevMetni);
             input.value = "";
             sayacGuncelle();
-            showToast("Yeni özel alışkanlık eklemesi başarılı.");
+            showToast("Yeni alışkanlık listeye eklendi.");
         }
 
         function dinamikGorevArayüzeEkle(text) {
@@ -385,19 +396,18 @@
         let globalSonKilo = null;
         let globalGecmisVeriler = [];
 
-        // TAM DİNAMİK YAŞ VE CİNSİYET ENTEGRASYONLU HESAPLAMA MOTORU
         function metabolizmaVeTahminHesapla() {
             const boy = parseFloat(document.getElementById('profilBoy').value);
             const hedef = parseFloat(document.getElementById('profilHedef').value);
-            const yas = parseFloat(document.getElementById('profilYas').value) || 21; // fallback
+            const yas = parseFloat(document.getElementById('profilYas').value) || 21;
             const cinsiyet = document.getElementById('profilCinsiyet').value;
+            const aktiviteCarpani = parseFloat(document.getElementById('profilAktivite').value) || 1.2;
             
             if(!globalSonKilo || !boy) {
                 document.getElementById('bmrGosterge').innerHTML = `--- <span class="text-xs">kcal</span>`;
                 return;
             }
 
-            // Gelişmiş Harris-Benedict Denklem Varyasyonu
             let bmr = 0;
             if(cinsiyet === "erkek") {
                 bmr = 88.362 + (13.397 * globalSonKilo) + (4.799 * boy) - (5.677 * yas);
@@ -405,46 +415,58 @@
                 bmr = 447.593 + (9.247 * globalSonKilo) + (3.098 * boy) - (4.330 * yas);
             }
 
-            document.getElementById('bmrGosterge').innerHTML = `${Math.round(bmr)} <span class="text-xs">kcal</span>`;
+            const tdee = bmr * aktiviteCarpani;
+            document.getElementById('bmrGosterge').innerHTML = `${Math.round(tdee)} <span class="text-xs">kcal</span>`;
 
             if(!hedef) return;
 
-            const kalanKilo = globalSonKilo - hedef;
-            document.getElementById('hedefeKalanGosterge').innerHTML = `${kalanKilo.toFixed(1)} <span class="text-xs">kg</span>`;
-
+            const kiloFarki = hedef - globalSonKilo;
+            const kalanKiloKutusu = document.getElementById('hedefeKalanGosterge');
+            const kalanKiloTipiKutusu = document.getElementById('kalanKiloTipi');
             const tahminKutusu = document.getElementById('tahminGosterge');
 
-            if(kalanKilo <= 0) {
-                tahminKutusu.innerText = "Hedefe ulaşıldı! Harikasın cano. 🎉";
+            kalanKiloKutusu.innerHTML = `${Math.abs(kiloFarki).toFixed(1)} <span class="text-xs">kg</span>`;
+
+            if(Math.abs(kiloFarki) < 0.2) {
+                tahminKutusu.innerText = "Hedeflenen ağırlığa ulaşıldı.";
                 tahminKutusu.className = "text-sm font-bold text-emerald-400 mt-0.5";
+                kalanKiloTipiKutusu.innerText = "Hedefe Kalan Kilo";
                 return;
             }
 
-            if(globalGecmisVeriler.length >= 2) {
-                let toplamKalori = 0;
-                let kaloriGirenGunSayisi = 0;
+            let toplamKalori = 0;
+            let kaloriGirenGunSayisi = 0;
+            globalGecmisVeriler.forEach(r => {
+                if(r.kalori) { toplamKalori += r.kalori; kaloriGirenGunSayisi++; }
+            });
+            const ortalamaAlinanKalori = kaloriGirenGunSayisi > 0 ? (toplamKalori / kaloriGirenGunSayisi) : tdee;
 
-                globalGecmisVeriler.forEach(r => {
-                    if(r.kalori) { toplamKalori += r.kalori; kaloriGirenGunSayisi++; }
-                });
-
-                const ortalamaAlinanKalori = kaloriGirenGunSayisi > 0 ? (toplamKalori / kaloriGirenGunSayisi) : bmr;
-                const aktifYakitTuketimi = bmr * 1.2;
-                const gunlukKaloriAcigi = aktifYakitTuketimi - ortalamaAlinanKalori;
+            if(kiloFarki < 0) {
+                kalanKiloTipiKutusu.innerText = "Hedefe Kalan Kilo (Defisit)";
+                const gunlukKaloriAcigi = tdee - ortalamaAlinanKalori;
 
                 if(gunlukKaloriAcigi > 100) {
-                    const toplamGerekenKaloriAcigi = kalanKilo * 7700;
-                    const tahminiGun = Math.ceil(toplamGerekenKaloriAcigi / gunlukKaloriAcigi);
-                    
-                    tahminKutusu.innerText = `Mevcut tempoyla kalan süre: ${tahminiGun} gün. 🚀`;
+                    const gerekenToplamEnerjiAcigi = Math.abs(kiloFarki) * 7700;
+                    const tahminiGun = Math.ceil(gerekenToplamEnerjiAcigi / gunlukKaloriAcigi);
+                    tahminKutusu.innerText = `Mevcut tempoyla kalan süre: ${tahminiGun} gün.`;
                     tahminKutusu.className = "text-sm font-bold text-[#34d399] mt-0.5";
                 } else {
-                    tahminKutusu.innerText = "Kalori alımı yüksek, kalori açığı oluşturun cano.";
+                    tahminKutusu.innerText = "Kalori alımı yüksek, kalori açığı oluşturulmalıdır.";
                     tahminKutusu.className = "text-sm font-bold text-amber-500 mt-0.5";
                 }
             } else {
-                tahminKutusu.innerText = "Zaman tahmini için en az 2 günlük veri girişi gerekli.";
-                tahminKutusu.className = "text-sm font-bold text-gray-400 mt-0.5";
+                kalanKiloTipiKutusu.innerText = "Hedefe Kalan Kilo (Sürplus)";
+                const gunlukKaloriFazlasi = ortalamaAlinanKalori - tdee;
+
+                if(gunlukKaloriFazlasi > 100) {
+                    const gerekenToplamEnerjiFazlasi = kiloFarki * 7700;
+                    const tahminiGun = Math.ceil(requiredTotalEnergySurplus / gunlukKaloriFazlasi);
+                    tahminKutusu.innerText = `Mevcut gelişim temposuyla kalan süre: ${tahminiGun} gün.`;
+                    tahminKutusu.className = "text-sm font-bold text-[#38bdf8] mt-0.5";
+                } else {
+                    tahminKutusu.innerText = "Kalori alımı yetersiz, kalori fazlası oluşturulmalıdır.";
+                    tahminKutusu.className = "text-sm font-bold text-amber-500 mt-0.5";
+                }
             }
         }
 
@@ -457,7 +479,7 @@
             const tabloGövde = document.getElementById('logTabloGövde');
             
             if (error || !data || data.length === 0) {
-                tabloGövde.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Kayıtlı veri bulunamadı. Veri girdikçe burası canlanacak!</td></tr>`;
+                tabloGövde.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Kayıtlı veri bulunamadı. Veri girildikçe güncellenecektir.</td></tr>`;
                 if(myChart) { myChart.destroy(); myChart = null; }
                 return;
             }
@@ -527,7 +549,7 @@
                             pointBackgroundColor: '#34d399',
                             pointRadius: 4,
                             tension: 0.15,
-                            yAxisID: 'yKalori',
+                            yAxisID: 'yCalori',
                         }
                     ]
                 },
@@ -538,15 +560,15 @@
                         legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' } } }
                     },
                     scales: {
-                        x: { grid: { color: 'rgba(51, 65, 85, 0.15)' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.12)' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
                         yKilo: {
                             type: 'linear',
                             position: 'left',
-                            grid: { color: 'rgba(51, 65, 85, 0.15)' },
+                            grid: { color: 'rgba(51, 65, 85, 0.12)' },
                             ticks: { color: '#38bdf8', font: { size: 11, weight: '600' } },
                             title: { display: true, text: 'KİLO (KG)', color: '#38bdf8', font: { size: 11, weight: 'bold' } }
                         },
-                        yKalori: {
+                        yCalori: {
                             type: 'linear',
                             position: 'right',
                             grid: { drawOnChartArea: false },
@@ -563,7 +585,7 @@
             const kalori = document.getElementById('kaloriInput').value;
             const tarih = new Date().toLocaleDateString('tr-TR');
 
-            if (!kilo) { showToast("Lütfen kilonuzu girin.", "error"); return; }
+            if (!kilo) { showToast("Lütfen kilo bilgisini girin.", "error"); return; }
 
             const gorevPaketi = {};
             document.querySelectorAll('.gorev-checkbox').forEach(cb => {
@@ -600,7 +622,7 @@
             if (error) {
                 showToast("Bağlantı Hatası: " + error.message, "error");
             } else {
-                showToast("Bugünkü verileriniz başarıyla güncellendi.");
+                showToast("Günlük veriler başarıyla eşitlendi.");
                 document.getElementById('kiloInput').value = "";
                 document.getElementById('kaloriInput').value = "";
                 tabloyuVeGrafigiYukle();
