@@ -19,7 +19,7 @@
     <div id="modalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#1c1214] border border-rose-500/30 p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4 animate-fade-in">
             <div class="flex items-start space-x-3.5">
-                <span class="text-2xl">⚠️</span>
+                <span class="text-xl">⚠️</span>
                 <div class="space-y-1">
                     <p class="font-bold text-base text-gray-100">Veri Sıfırlama Onayı</p>
                     <p class="text-sm text-gray-400 font-medium leading-relaxed">Tüm geçmiş kayıtlarınız ve grafik verileriniz veritabanından kalıcı olarak silinecektir. Bu işlem geri alınamaz.</p>
@@ -36,7 +36,7 @@
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 w-full">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">ZEROFAT</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.07</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.08</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
@@ -81,7 +81,7 @@
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Hedef Kilo (kg)</label>
-                            <input type="number" id="profilHedef" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center text-white font-medium" placeholder="Örn: 95">
+                            <input type="number" id="profilHedef" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center text-white font-medium" placeholder="Örn: 90">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Mevcut Yaş</label>
@@ -182,7 +182,7 @@
                                 <input type="checkbox" data-gorev-adi="45 Dk Aç Karnına Yürüyüş" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
                                 <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏃‍♂️ 45 Dk Yürüyüş</span>
                             </span>
-                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
+                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-0.5 rounded-full durum-label">Bekliyor</span>
                         </label>
 
                         <label class="flex items-center justify-between p-4 bg-[#1f2937]/40 border border-gray-700 hover:border-gray-600 rounded-xl cursor-pointer transition group shadow-sm">
@@ -190,7 +190,7 @@
                                 <input type="checkbox" data-gorev-adi="Dambıl Antrenmanı" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
                                 <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
                             </span>
-                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
+                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-0.5 rounded-full durum-label">Bekliyor</span>
                         </label>
                     </div>
 
@@ -460,7 +460,7 @@
 
                 if(gunlukKaloriFazlasi > 100) {
                     const gerekenToplamEnerjiFazlasi = kiloFarki * 7700;
-                    const tahminiGun = Math.ceil(requiredTotalEnergySurplus / gunlukKaloriFazlasi);
+                    const tahminiGun = Math.ceil(gerekenToplamEnerjiFazlasi / gunlukKaloriFazlasi);
                     tahminKutusu.innerText = `Mevcut gelişim temposuyla kalan süre: ${tahminiGun} gün.`;
                     tahminKutusu.className = "text-sm font-bold text-[#38bdf8] mt-0.5";
                 } else {
@@ -470,10 +470,15 @@
             }
         }
 
+        // GÜVENLİK FİLTRESİ ENTEGRE EDİLMİŞ VERİ YÜKLEME FONKSİYONU
         async function tabloyuVeGrafigiYukle() {
+            const { data: { user } } = await sClient.auth.getUser();
+
+            // Sadece aktif kullanıcının ID'sine ait satırları çekiyoruz (.eq filtresi)
             const { data, error } = await sClient
                 .from('sprint_takip')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('id', { ascending: true });
 
             const tabloGövde = document.getElementById('logTabloGövde');
@@ -481,6 +486,9 @@
             if (error || !data || data.length === 0) {
                 tabloGövde.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Kayıtlı veri bulunamadı. Veri girildikçe güncellenecektir.</td></tr>`;
                 if(myChart) { myChart.destroy(); myChart = null; }
+                globalGecmisVeriler = [];
+                globalSonKilo = null;
+                metabolizmaVeTahminHesapla();
                 return;
             }
 
