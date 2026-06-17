@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZeroFat Dashboard</title>
+    <title>ZeroFat Pro Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -17,7 +18,7 @@
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">ZEROFAT</span>
-                <span class="text-xs bg-emerald-500/10 text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/20">v2.0</span>
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/20">v3.0 JSONB</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center space-x-4">
@@ -51,15 +52,21 @@
 
         <div id="anaEkran" class="hidden space-y-8">
             
+            <div class="bg-[#111827]/30 border border-gray-800/80 p-6 rounded-2xl shadow-xl space-y-4">
+                <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider block">Performans & İlerleme Grafiği</span>
+                <div class="relative h-[300px] w-full">
+                    <canvas id="ilerlemeGrafigi"></canvas>
+                </div>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
                 <div class="bg-[#111827]/40 border border-gray-800/60 p-6 rounded-2xl shadow-xl space-y-4">
                     <div class="flex items-center space-x-3 text-emerald-400">
                         <span class="p-2 bg-emerald-500/10 rounded-lg">⚖️</span>
                         <span class="font-semibold text-gray-200">Mevcut Kütle</span>
                     </div>
                     <div class="relative">
-                        <input type="number" id="kiloInput" step="0.1" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="00.0">
+                        <input type="number" id="kiloInput" step="0.1" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-emerald-500 transition" placeholder="00.0">
                         <span class="absolute right-4 top-5 text-xs font-bold text-gray-500">KG</span>
                     </div>
                 </div>
@@ -70,7 +77,7 @@
                         <span class="font-semibold text-gray-200">Enerji Alımı</span>
                     </div>
                     <div class="relative">
-                        <input type="number" id="kaloriInput" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="0000">
+                        <input type="number" id="kaloriInput" class="w-full bg-[#1f2937]/50 border border-gray-700/50 p-4 rounded-xl text-white font-bold text-2xl text-center focus:outline-none focus:border-amber-500 transition" placeholder="0000">
                         <span class="absolute right-4 top-5 text-xs font-bold text-gray-500">KCAL</span>
                     </div>
                 </div>
@@ -91,7 +98,7 @@
                 <div id="gorevListesi" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
                         <span class="flex items-center space-x-3">
-                            <input type="checkbox" id="yuruyus" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer">
+                            <input type="checkbox" data-gorev-adi="🏃‍♂️ 45 Dk Aç Karnına Yürüyüş" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 bg-gray-800 cursor-pointer gorev-checkbox">
                             <span class="text-gray-200 group-hover:text-white transition">🏃‍♂️ 45 Dk Aç Karnına Yürüyüş</span>
                         </span>
                         <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
@@ -99,7 +106,7 @@
 
                     <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
                         <span class="flex items-center space-x-3">
-                            <input type="checkbox" id="dambil" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer">
+                            <input type="checkbox" data-gorev-adi="🏋️‍♂️ Dambıl Antrenmanı" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 bg-gray-800 cursor-pointer gorev-checkbox">
                             <span class="text-gray-200 group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
                         </span>
                         <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
@@ -122,13 +129,12 @@
                                 <th class="p-4">Tarih</th>
                                 <th class="p-4">Kütle (KG)</th>
                                 <th class="p-4">Kalori (KCAL)</th>
-                                <th class="p-4">Yürüyüş</th>
-                                <th class="p-4">Dambıl</th>
+                                <th class="p-4">Tamamlanan Görev Operasyonları</th>
                             </tr>
                         </thead>
                         <tbody id="logTabloGövde" class="divide-y divide-gray-800/60 text-sm text-gray-300">
                             <tr>
-                                <td colspan="5" class="p-4 text-center text-gray-500 font-mono text-xs">Veritabanından veriler senkronize ediliyor...</td>
+                                <td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Veritabanından veriler senkronize ediliyor...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -143,12 +149,13 @@
         const SUPABASE_ANON_KEY = "sb_publishable_FlrcsVgMZGCmpiTXz2mZuA_O4TP_phx";
 
         const sClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let myChart = null; // Grafik nesnesi
 
         window.onload = async function () {
             const { data: { session } } = await sClient.auth.getSession();
             oturumAyarla(session);
             if(session) {
-                tabloyuDoldur();
+                tabloyuVeGrafigiYukle();
                 sayacGuncelle();
             }
         }
@@ -179,7 +186,7 @@
         }
 
         function sayacGuncelle() {
-            const checkboxes = document.querySelectorAll('#gorevListesi input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('.gorev-checkbox');
             let yapilan = 0;
             
             checkboxes.forEach(cb => {
@@ -202,11 +209,10 @@
             if(gorevMetni === "") return;
 
             const liste = document.getElementById('gorevListesi');
-            const yeniID = "id_" + Date.now();
             const yeniGorevHTML = `
                 <label class="flex items-center justify-between p-4 bg-[#111827]/60 border border-gray-800/80 hover:border-gray-700 rounded-xl cursor-pointer transition group">
                     <span class="flex items-center space-x-3">
-                        <input type="checkbox" id="${yeniID}" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-gray-800 cursor-pointer ek-gorev">
+                        <input type="checkbox" data-gorev-adi="${gorevMetni}" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-700 text-emerald-500 bg-gray-800 cursor-pointer gorev-checkbox">
                         <span class="text-gray-200 group-hover:text-white transition">✨ ${gorevMetni}</span>
                     </span>
                     <span class="text-xs font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md durum-label">Bekliyor</span>
@@ -217,44 +223,129 @@
             sayacGuncelle();
         }
 
-        async function tabloyuDoldur() {
+        // TARIHSEL VERILERI VE GRAFIGI DOLDURAN ANA MERKEZ
+        async function tabloyuVeGrafigiYukle() {
             const { data, error } = await sClient
                 .from('sprint_takip')
                 .select('*')
-                .order('id', { ascending: false });
+                .order('id', { ascending: true }); // Grafik soldan sağa aksın diye true yaptık
 
             const tabloGövde = document.getElementById('logTabloGövde');
             
             if (error || !data || data.length === 0) {
-                tabloGövde.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-600 font-mono text-xs">Henüz doğrulanmış bir veri kaydı bulunamadı.</td></tr>`;
+                tabloGövde.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-600 font-mono text-xs">Henüz veri kaydı bulunamadı. Veri ekledikçe grafik canlanacak!</td></tr>`;
                 return;
             }
 
+            // Tabloyu doldururken ters çevireceğiz (en yeni en üstte dursun diye)
+            const tabloVerisi = [...data].reverse();
             tabloGövde.innerHTML = "";
-            data.forEach(row => {
+            
+            tabloVerisi.forEach(row => {
                 const kaloriDegeri = row.kalori ? `${row.kalori} kcal` : '---';
                 
+                // JSONB içindeki görevleri parse edip şık rozetler haline getiriyoruz
+                let gorevRozetleri = "";
+                if (row.gorevler) {
+                    Object.entries(row.gorevler).forEach(([ad, durum]) => {
+                        if(durum === "Yapıldı") {
+                            gorevRozetleri += `<span class="inline-block text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md mr-1.5 mb-1">✓ ${ad}</span>`;
+                        } else {
+                            gorevRozetleri += `<span class="inline-block text-[10px] bg-gray-800 text-gray-500 border border-gray-700/50 px-2 py-0.5 rounded-md mr-1.5 mb-1">✗ ${ad}</span>`;
+                        }
+                    });
+                } else {
+                    gorevRozetleri = `<span class="text-gray-600 text-xs">Görev kaydı yok</span>`;
+                }
+
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-800/20 transition font-mono text-xs";
+                tr.className = "hover:bg-gray-800/20 transition text-xs";
                 tr.innerHTML = `
-                    <td class="p-4 text-gray-400">${row.tarih || '---'}</td>
-                    <td class="p-4 font-bold text-emerald-400">${row.kilo} kg</td>
-                    <td class="p-4 text-amber-400">${kaloriDegeri}</td>
-                    <td class="p-4">${row.yuruyus === 'Yapıldı' ? '✅' : '❌'}</td>
-                    <td class="p-4">${row.dambil === 'Yapıldı' ? '✅' : '❌'}</td>
+                    <td class="p-4 text-gray-400 font-mono">${row.tarih || '---'}</td>
+                    <td class="p-4 font-bold text-emerald-400 font-mono">${row.kilo} kg</td>
+                    <td class="p-4 text-amber-400 font-mono">${kaloriDegeri}</td>
+                    <td class="p-4">${gorevRozetleri}</td>
                 `;
                 tabloGövde.appendChild(tr);
             });
+
+            // CHART.JS GRAFİK HAZIRLIĞI
+            const tarihler = data.map(r => r.tarih);
+            const kilolar = data.map(r => r.kilo);
+            const kaloriler = data.map(r => r.kalori || 0);
+
+            if (myChart) { myChart.destroy(); } // Eski grafik varsa temizle
+
+            const ctx = document.getElementById('ilerlemeGrafigi').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tarihler,
+                    datasets: [
+                        {
+                            label: 'Kilo (KG)',
+                            data: kilolar,
+                            borderColor: '#10b981', // Zümrüt Yeşil
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            yAxisID: 'yKilo',
+                        },
+                        {
+                            label: 'Kalori (KCAL)',
+                            data: kaloriler,
+                            borderColor: '#f59e0b', // Amber Sarı
+                            backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                            borderWidth: 2,
+                            borderDash: [5, 5], // Kesikli çizgi
+                            tension: 0.3,
+                            yAxisID: 'yKalori',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans' } } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(31, 41, 55, 0.4)' }, ticks: { color: '#9ca3af' } },
+                        yKilo: {
+                            type: 'linear',
+                            position: 'left',
+                            grid: { color: 'rgba(31, 41, 55, 0.4)' },
+                            ticks: { color: '#10b981' },
+                            title: { display: true, text: 'Kütle (KG)', color: '#10b981' }
+                        },
+                        yKalori: {
+                            type: 'linear',
+                            position: 'right',
+                            grid: { drawOnChartArea: false }, // Çizgiler çakışmasın
+                            ticks: { color: '#f59e0b' },
+                            title: { display: true, text: 'Enerji (KCAL)', color: '#f59e0b' }
+                        }
+                    }
+                }
+            });
         }
 
+        // VERİYİ PAKETLEYİP JSONB OLARAK GÖNDERME
         async function veriyiSupabaseKaydet() {
             const kilo = document.getElementById('kiloInput').value;
             const kalori = document.getElementById('kaloriInput').value;
-            const yuruyusYapildi = document.getElementById('yuruyus').checked;
-            const dambilYapildi = document.getElementById('dambil').checked;
             const tarih = new Date().toLocaleDateString('tr-TR');
 
             if (!kilo) { alert("Lütfen kütle bilgisini gir cano!"); return; }
+
+            // Ekrandaki tüm görevleri (statik + dinamik fark etmeksizin) JSON olarak topluyoruz
+            const gorevPaketi = {};
+            const checkboxes = document.querySelectorAll('.gorev-checkbox');
+            
+            checkboxes.forEach(cb => {
+                const gAdi = cb.getAttribute('data-gorev-adi');
+                gorevPaketi[gAdi] = cb.checked ? "Yapıldı" : "Yapılmadı";
+            });
 
             const { data: { user } } = await sClient.auth.getUser();
 
@@ -265,19 +356,18 @@
                         user_id: user.id,
                         kilo: parseFloat(kilo),
                         kalori: kalori ? parseInt(kalori) : null,
-                        yuruyus: yuruyusYapildi ? "Yapıldı" : "Yapılmadı",
-                        dambil: dambilYapildi ? "Yapıldı" : "Yapılmadı",
-                        tarih: tarih
+                        tarih: tarih,
+                        gorevler: gorevPaketi // JSONB Sütununa giden paket paket veri!
                     }
                 ]);
 
             if (error) {
-                alert("Veri senkronizasyon hatası: " + error.message);
+                alert("Senkronizasyon Hatası: " + error.message);
             } else {
-                alert("Senkronizasyon Başarılı! Günlük veriler bulut tablosuna işlendi.");
+                alert("Mühendislik Harikası! Veriler JSONB şemasıyla kaydedildi ve grafik güncellendi.");
                 document.getElementById('kiloInput').value = "";
                 document.getElementById('kaloriInput').value = "";
-                tabloyuDoldur();
+                tabloyuVeGrafigiYukle(); // Grafik ve tabloyu anlık yenile
             }
         }
     </script>
