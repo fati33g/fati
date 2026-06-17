@@ -34,6 +34,24 @@
         </div>
     </div>
 
+    <div id="editModalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-[#1e293b] p-5 rounded-2xl shadow-2xl max-w-md w-full space-y-4">
+            <div class="flex items-center space-x-2 border-b border-gray-800 pb-2">
+                <span class="text-base">✏️</span>
+                <p class="font-bold text-sm text-gray-200">Alışkanlığı Düzenle</p>
+            </div>
+            <input type="hidden" id="editModalEskiMetin">
+            <div class="space-y-1">
+                <label class="text-xs text-gray-400 block">Alışkanlık İsmi</label>
+                <input type="text" id="editModalInput" class="w-full bg-[#1f2937]/50 border border-gray-750 p-3 rounded-xl text-sm font-medium focus:outline-none focus:border-[#38bdf8] text-white transition">
+            </div>
+            <div class="flex justify-end space-x-2 text-xs font-bold pt-1">
+                <button onclick="editModalKapat()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition cursor-pointer">İptal</button>
+                <button onclick="editModalKaydet()" class="px-4 py-2.5 rounded-xl bg-[#38bdf8] hover:bg-[#0284c7] text-gray-900 transition shadow-lg cursor-pointer">Değişikliği Kaydet</button>
+            </div>
+        </div>
+    </div>
+
     <header class="border-b border-[#1e293b]/60 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50 px-4 md:px-8 py-4 shadow-sm w-full overflow-x-hidden shrink-0">
         <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
             <div class="flex items-center space-x-3">
@@ -279,6 +297,44 @@
         function modalAc() { document.getElementById('modalOverlay').classList.remove('hidden'); }
         function modalKapat() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
+        // Düzenleme Modali Fonksiyonları (Custom Popup)
+        function editModalAc(eskiText) {
+            document.getElementById('editModalEskiMetin').value = eskiText;
+            document.getElementById('editModalInput').value = eskiText;
+            document.getElementById('editModalOverlay').classList.remove('hidden');
+        }
+        function editModalKapat() {
+            document.getElementById('editModalOverlay').classList.add('hidden');
+        }
+        function editModalKaydet() {
+            const eskiText = document.getElementById('editModalEskiMetin').value;
+            const yeniMetin = document.getElementById('editModalInput').value.trim();
+            
+            if (!yeniMetin || yeniMetin === eskiText) {
+                editModalKapat();
+                return;
+            }
+
+            let ekGorevler = JSON.parse(localStorage.getItem('zf_ek_gorevler')) || [];
+            const idx = ekGorevler.indexOf(eskiText);
+            if (idx !== -1) {
+                ekGorevler[idx] = yeniMetin;
+                localStorage.setItem('zf_ek_gorevler', JSON.stringify(ekGorevler));
+            }
+
+            let tikDurumlari = JSON.parse(localStorage.getItem('zf_checkbox_durumlari')) || {};
+            if (tikDurumlari[eskiText] !== undefined) {
+                tikDurumlari[yeniMetin] = tikDurumlari[eskiText];
+                delete tikDurumlari[eskiText];
+                localStorage.setItem('zf_checkbox_durumlari', JSON.stringify(tikDurumlari));
+            }
+
+            document.getElementById('gorevListesi').innerHTML = "";
+            yerelGorevleriYukle();
+            editModalKapat();
+            showToast("Alışkanlık ismi başarıyla güncellendi.");
+        }
+
         async function matrisiTamamenSifirla() {
             modalKapat();
             const { data: { user } } = await sClient.auth.getUser();
@@ -405,37 +461,12 @@
                     </label>
                     <div class="flex items-center space-x-2.5 shrink-0 ml-2">
                         <span class="text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label">Bekliyor</span>
-                        <button onclick="gorevDuzenle('${text}')" class="text-gray-400 hover:text-[#38bdf8] transition text-xs p-1 cursor-pointer" title="Alışkanlığı Düzenle">✏️</button>
+                        <button onclick="editModalAc('${text}')" class="text-gray-400 hover:text-[#38bdf8] transition text-xs p-1 cursor-pointer" title="Alışkanlığı Düzenle">✏️</button>
                         <button onclick="gorevSil('${text}')" class="text-gray-400 hover:text-rose-400 transition text-xs p-1 cursor-pointer" title="Alışkanlığı Sil">🗑️</button>
                     </div>
                 </div>
             `;
             liste.insertAdjacentHTML('beforeend', yeniGorevHTML);
-        }
-
-        function gorevDuzenle(eskiText) {
-            const yeniMetin = prompt("Alışkanlık ismini güncelleyin:", eskiText);
-            if (!yeniMetin || yeniMetin.trim() === "" || yeniMetin === eskiText) return;
-            
-            const temizYeniMetin = yeniMetin.trim();
-
-            let ekGorevler = JSON.parse(localStorage.getItem('zf_ek_gorevler')) || [];
-            const idx = ekGorevler.indexOf(eskiText);
-            if (idx !== -1) {
-                ekGorevler[idx] = temizYeniMetin;
-                localStorage.setItem('zf_ek_gorevler', JSON.stringify(ekGorevler));
-            }
-
-            let tikDurumlari = JSON.parse(localStorage.getItem('zf_checkbox_durumlari')) || {};
-            if (tikDurumlari[eskiText] !== undefined) {
-                tikDurumlari[temizYeniMetin] = tikDurumlari[eskiText];
-                delete tikDurumlari[eskiText];
-                localStorage.setItem('zf_checkbox_durumlari', JSON.stringify(tikDurumlari));
-            }
-
-            document.getElementById('gorevListesi').innerHTML = "";
-            yerelGorevleriYukle();
-            showToast("Alışkanlık ismi güncellendi.");
         }
 
         function gorevSil(text) {
@@ -644,13 +675,12 @@
             });
         }
 
-        // ESNEK KİLO VE KALORİ GİRİŞ MOTORU (GÜNCELLENDİ)
+        // ESNEK KİLO VE KALORİ GİRİŞ MOTORU (Kapsamlı Birleştirme Mantığı)
         async function veriyiSupabaseKaydet() {
             const kiloVal = document.getElementById('kiloInput').value;
             const kaloriVal = document.getElementById('kaloriInput').value;
             const tarih = new Date().toLocaleDateString('tr-TR');
 
-            // İki alan birden boşsa hata ver
             if (!kiloVal && !kaloriVal) { 
                 showToast("Lütfen kilo veya kalori alanlarından en az birini doldurun.", "error"); 
                 return; 
@@ -658,7 +688,6 @@
 
             const { data: { user } } = await sClient.auth.getUser();
 
-            // Bugünün mevcut kaydı var mı kontrol et
             const { data: mevcutKayit } = await sClient
                 .from('sprint_takip')
                 .select('*')
@@ -666,7 +695,6 @@
                 .eq('tarih', tarih)
                 .maybeSingle();
 
-            // Aktivitelerin anlık durumunu paketle
             const gorevPaketi = {};
             document.querySelectorAll('.gorev-checkbox').forEach(cb => {
                 const gAdi = cb.getAttribute('data-gorev-adi');
@@ -680,17 +708,15 @@
             };
 
             if (mevcutKayit) {
-                // Bugün kayıt ZATEN VARSA (Patch/Merge mantığı):
-                // Yeni kilo girildiyse yenisini yaz, girilmediyse eski kiloyu koru
+                // Gün içinde güncelleme yapılıyorsa (Patch mantığı):
                 payload.kilo = kiloVal ? parseFloat(kiloVal) : mevcutKayit.kilo;
-                // Yeni kalori girildiyse yenisini yaz, girilmediyse eski kaloriyi koru
                 payload.kalori = kaloriVal ? parseInt(kaloriVal) : mevcutKayit.kalori;
             } else {
-                // Bugün İLK DEFA kayıt açılıyorsa:
+                // Günün İLK kaydı açılıyorsa:
                 if (kiloVal) {
                     payload.kilo = parseFloat(kiloVal);
                 } else {
-                    // Sadece kalori girildiyse, kilonun bozulmaması için geçmişteki en son kiloyu referans al
+                    // Sadece kalori girildiyse, kilonun sıfırlanmaması için geçmişteki en son kiloyu taşı
                     payload.kilo = globalSonKilo ? globalSonKilo : 70; 
                 }
                 payload.kalori = kaloriVal ? parseInt(kaloriVal) : null;
