@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZeroFat Lifestyle Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,30 +12,46 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-[#0b0f17] text-[#f1f5f9] min-h-screen antialiased selection:bg-[#34d399]/20 selection:text-[#34d399]">
+<body class="bg-[#0b0f17] text-[#f1f5f9] min-h-screen antialiased overflow-x-hidden selection:bg-[#34d399]/20 selection:text-[#34d399]">
 
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none max-w-[90%]"></div>
 
-    <header class="border-b border-[#1e293b]/60 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50 px-6 py-4 shadow-sm">
-        <div class="max-w-[95%] mx-auto flex justify-between items-center">
+    <div id="modalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#1c1214] border border-rose-500/30 p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4 animate-fade-in">
+            <div class="flex items-start space-x-3.5">
+                <span class="text-2xl">⚠️</span>
+                <div class="space-y-1">
+                    <p class="font-bold text-base text-gray-100">Verileri Sıfırlama Onayı</p>
+                    <p class="text-sm text-gray-400 font-medium leading-relaxed">Emin misin cano? Tüm geçmiş kayıtların ve grafik verilerin buluttan kalıcı olarak silinecek! Bu işlem geri alınamaz.</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 text-xs font-bold pt-2">
+                <button onclick="modalKapat()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition cursor-pointer">İptal Et</button>
+                <button onclick="matrisiTamamenSifirla()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition shadow-lg shadow-rose-600/10 cursor-pointer">Evet, Tümünü Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="border-b border-[#1e293b]/60 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50 px-4 md:px-6 py-4 shadow-sm w-full overflow-x-hidden">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 w-full">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">ZEROFAT</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.04</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.06</span>
             </div>
             
-            <div id="userProfile" class="hidden flex items-center space-x-4">
-                <div class="text-right">
+            <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
+                <div class="text-left sm:text-right">
                     <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Kullanıcı Profil</p>
-                    <p id="kullaniciMail" class="text-sm font-semibold text-gray-200">...</p>
+                    <p id="kullaniciMail" class="text-xs sm:text-sm font-semibold text-gray-200 truncate max-w-[180px] sm:max-w-none">...</p>
                 </div>
-                <button onclick="cikisYap()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-2 rounded-xl border border-rose-500/20 transition cursor-pointer">Oturumu Kapat</button>
+                <button onclick="cikisYap()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-2 rounded-xl border border-rose-500/20 transition cursor-pointer shrink-0">Oturumu Kapat</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-[95%] mx-auto p-4 md:p-6">
+    <main class="max-w-6xl mx-auto p-4 md:p-6 w-full overflow-x-hidden">
 
-        <div id="authEkranı" class="max-w-md mx-auto bg-[#111827] border border-[#1e293b]/50 p-8 rounded-2xl shadow-2xl space-y-6 mt-16">
+        <div id="authEkranı" class="max-w-md mx-auto bg-[#111827] border border-[#1e293b]/50 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 mt-12 sm:mt-16">
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-100">Sağlıklı Yaşama Başla</h2>
                 <p class="text-sm text-gray-400">Günlük kilo ve kalori takibini başlatmak için Google hesabınla giriş yap.</p>
@@ -52,20 +68,31 @@
             </button>
         </div>
 
-        <div id="anaEkran" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div id="anaEkran" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 w-full">
             
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-1 space-y-4 md:space-y-6 w-full">
                 <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-5 rounded-2xl shadow-md space-y-4">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block border-b border-gray-800 pb-2">🎯 Hedef & Profil</span>
                     
-                    <div class="space-y-3">
+                    <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
                         <div>
-                            <label class="text-xs text-gray-400 block mb-1">Boy uzunluğu (cm)</label>
-                            <input type="number" id="profilBoy" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#38bdf8] text-center" placeholder="Örn: 180">
+                            <label class="text-xs text-gray-400 block mb-1">Boy Uzunluğu (cm)</label>
+                            <input type="number" id="profilBoy" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#38bdf8] text-center text-white font-medium" placeholder="Örn: 180">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Hedef Kilo (kg)</label>
-                            <input type="number" id="profilHedef" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center" placeholder="Örn: 95">
+                            <input type="number" id="profilHedef" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center text-white font-medium" placeholder="Örn: 95">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Mevcut Yaş</label>
+                            <input type="number" id="profilYas" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-amber-400 text-center text-white font-medium" placeholder="Örn: 21">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Biyolojik Cinsiyet</label>
+                            <select id="profilCinsiyet" onchange="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-purple-400 text-center text-white font-medium cursor-pointer">
+                                <option value="erkek">Erkek</option>
+                                <option value="kadin">Kadın</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -73,7 +100,7 @@
                 <div class="bg-gradient-to-br from-[#111827]/80 to-[#1e293b]/30 border border-[#1e293b]/40 p-5 rounded-2xl shadow-md space-y-4">
                     <span class="text-xs font-bold text-[#34d399] uppercase tracking-wider block">📊 Metabolizma & Tahmin</span>
                     
-                    <div class="space-y-3 font-medium">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3 font-medium">
                         <div class="bg-[#0f172a]/60 p-3 rounded-xl border border-gray-800/40">
                             <p class="text-[11px] text-gray-400">Günlük Metabolizma Hızı (BMR)</p>
                             <p id="bmrGosterge" class="text-lg font-bold text-[#38bdf8]">--- <span class="text-xs">kcal</span></p>
@@ -90,22 +117,22 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-3 space-y-4 md:space-y-6 w-full">
                 
-                <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4 w-full overflow-hidden">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                         <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Gelişim Grafiğim</span>
-                        <button onclick="sifirlamaOnayKutusuGoster()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5">
+                        <button onclick="modalAc()" class="text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5">
                             <span>🗑️</span>
                             <span>Verileri Temizle</span>
                         </button>
                     </div>
-                    <div class="relative h-[280px] w-full">
+                    <div class="relative h-[240px] sm:h-[280px] w-full">
                         <canvas id="ilerlemeGrafigi"></canvas>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                     <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-5 rounded-2xl space-y-3 shadow-md">
                         <div class="flex items-center space-x-2 text-[#38bdf8]">
                             <span class="text-sm uppercase font-bold tracking-wider text-gray-300">Güncel Kilo</span>
@@ -133,57 +160,57 @@
                     </div>
                 </div>
 
-                <div class="bg-[#111827]/60 border border-[#1e293b]/40 rounded-2xl p-6 shadow-md space-y-4">
+                <div class="bg-[#111827]/60 border border-[#1e293b]/40 rounded-2xl p-5 sm:p-6 shadow-md space-y-4 w-full">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                         <span class="text-sm font-bold text-gray-300 uppercase tracking-wider">Bugünün Alışkanlıkları</span>
                         <span class="text-xs bg-[#1f2937] border border-gray-700 text-gray-200 px-3 py-1 rounded-full font-medium" id="gorevSayac">0 / 2 Yapıldı</span>
-                </div>
-                
-                <div id="gorevListesi" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label class="flex items-center justify-between p-4 bg-[#1f2937]/40 border border-gray-700 hover:border-gray-600 rounded-xl cursor-pointer transition group shadow-sm">
-                        <span class="flex items-center space-x-3.5">
-                            <input type="checkbox" data-gorev-adi="45 Dk Aç Karnına Yürüyüş" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
-                            <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏃‍♂️ 45 Dk Aç Karnına Yürüyüş</span>
-                        </span>
-                        <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
-                    </label>
+                    </div>
+                    
+                    <div id="gorevListesi" class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                        <label class="flex items-center justify-between p-4 bg-[#1f2937]/40 border border-gray-700 hover:border-gray-600 rounded-xl cursor-pointer transition group shadow-sm">
+                            <span class="flex items-center space-x-3.5">
+                                <input type="checkbox" data-gorev-adi="45 Dk Aç Karnına Yürüyüş" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
+                                <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏃‍♂️ 45 Dk Yürüyüş</span>
+                            </span>
+                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
+                        </label>
 
-                    <label class="flex items-center justify-between p-4 bg-[#1f2937]/40 border border-gray-700 hover:border-gray-600 rounded-xl cursor-pointer transition group shadow-sm">
-                        <span class="flex items-center space-x-3.5">
-                            <input type="checkbox" data-gorev-adi="Dambıl Antrenmanı" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
-                            <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
-                        </span>
-                        <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
-                    </label>
+                        <label class="flex items-center justify-between p-4 bg-[#1f2937]/40 border border-gray-700 hover:border-gray-600 rounded-xl cursor-pointer transition group shadow-sm">
+                            <span class="flex items-center space-x-3.5">
+                                <input type="checkbox" data-gorev-adi="Dambıl Antrenmanı" onchange="sayacGuncelle()" class="w-5 h-5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
+                                <span class="text-sm text-gray-200 font-medium group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
+                            </span>
+                            <span class="text-xs font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2.5 py-1 rounded-full durum-label">Bekliyor</span>
+                        </label>
+                    </div>
+
+                    <div class="flex space-x-2 max-w-md pt-1 w-full">
+                        <input type="text" id="yeniGorevInput" class="flex-1 p-3 bg-[#1f2937]/50 border border-gray-700 rounded-xl text-sm font-medium focus:outline-none focus:border-gray-500 text-white transition placeholder-gray-500" placeholder="Yeni özel alışkanlık ekle...">
+                        <button onclick="yeniGorevEkle()" class="bg-[#1f2937] hover:bg-gray-700 border border-gray-600 px-5 rounded-xl font-bold text-base transition cursor-pointer text-gray-300">+</button>
+                    </div>
                 </div>
 
-                <div class="flex space-x-2 max-w-md pt-1">
-                    <input type="text" id="yeniGorevInput" class="flex-1 p-3 bg-[#1f2937]/50 border border-gray-700 rounded-xl text-sm font-medium focus:outline-none focus:border-gray-500 text-white transition placeholder-gray-500" placeholder="Yeni özel alışkanlık ekle...">
-                    <button onclick="yeniGorevEkle()" class="bg-[#1f2937] hover:bg-gray-700 border border-gray-600 px-5 rounded-xl font-bold text-base transition cursor-pointer text-gray-300">+</button>
+                <div class="bg-[#111827]/60 border border-[#1e293b]/40 rounded-2xl p-4 sm:p-6 shadow-md space-y-4 w-full overflow-hidden">
+                    <span class="text-sm font-bold text-gray-300 uppercase tracking-wider block">Geçmiş Günlük Kayıtlarım</span>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-gray-800 w-full">
+                        <table class="w-full text-left border-collapse bg-[#111827]/30 min-w-[500px] sm:min-w-0">
+                            <thead>
+                                <tr class="border-b border-gray-800 bg-[#1f2937]/50 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    <th class="p-4">Tarih</th>
+                                    <th class="p-4">Ağırlık</th>
+                                    <th class="p-4">Enerji</th>
+                                    <th class="p-4">Tamamlanan Aktiviteler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logTabloGövde" class="divide-y divide-gray-800 text-sm text-gray-200">
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Günlük verileriniz yükleniyor...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-
-            <div class="bg-[#111827]/60 border border-[#1e293b]/40 rounded-2xl p-6 shadow-md space-y-4">
-                <span class="text-sm font-bold text-gray-300 uppercase tracking-wider block">Geçmiş Günlük Kayıtlarım</span>
-                
-                <div class="overflow-x-auto rounded-xl border border-gray-800">
-                    <table class="w-full text-left border-collapse bg-[#111827]/30">
-                        <thead>
-                            <tr class="border-b border-gray-800 bg-[#1f2937]/50 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                <th class="p-4">Tarih</th>
-                                <th class="p-4">Ağırlık</th>
-                                <th class="p-4">Enerji</th>
-                                <th class="p-4">Tamamlanan Aktiviteler</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logTabloGövde" class="divide-y divide-gray-800 text-sm text-gray-200">
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-gray-500 font-mono text-xs">Günlük verileriniz yükleniyor...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
             </div>
         </div>
@@ -224,31 +251,12 @@
             }, 3500);
         }
 
-        function sifirlamaOnayKutusuGoster() {
-            const container = document.getElementById('toastContainer');
-            if(document.getElementById('onayPopup')) return;
-
-            const popup = document.createElement('div');
-            popup.id = "onayPopup";
-            popup.className = "p-5 rounded-2xl border bg-[#1c0f11] text-rose-400 border-rose-500/30 shadow-2xl transition-all duration-300 pointer-events-auto space-y-4 max-w-sm";
-            popup.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <span class="text-xl">🗑️</span>
-                    <div class="space-y-1">
-                        <p class="font-bold text-sm text-gray-100">Verileri Sıfırlama Onayı</p>
-                        <p class="text-xs text-gray-400 font-medium">Emin misin cano? Tüm geçmiş kayıtların ve grafik verilerin buluttan kalıcı olarak silinecek!</p>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-2 text-xs font-bold">
-                    <button onclick="document.getElementById('onayPopup').remove()" class="px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition cursor-pointer">İptal</button>
-                    <button onclick="matrisiTamamenSifirla()" class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition shadow-lg cursor-pointer">Evet, Sil</button>
-                </div>
-            `;
-            container.appendChild(popup);
-        }
+        // ORTADA AÇILAN MODAL KONTROLLERİ
+        function modalAc() { document.getElementById('modalOverlay').classList.remove('hidden'); }
+        function modalKapat() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
         async function matrisiTamamenSifirla() {
-            document.getElementById('onayPopup').remove();
+            modalKapat();
             const { data: { user } } = await sClient.auth.getUser();
             const { error } = await sClient.from('sprint_takip').delete().eq('user_id', user.id);
 
@@ -313,20 +321,19 @@
             document.getElementById('gorevSayac').innerText = `${yapilan} / ${checkboxes.length} Yapıldı`;
         }
 
-        // PROFİL / HEDEF VERİLERİNİ LOKALDE SAKLAMA VE HESAPLAMA
         function profilVerileriniKaydet() {
-            const boy = document.getElementById('profilBoy').value;
-            const hedef = document.getElementById('profilHedef').value;
-            localStorage.setItem('zf_profil_boy', boy);
-            localStorage.setItem('zf_profil_hedef', hedef);
-            
-            // Eğer veriler yüklendiyse anlık BMR ve tahmin motorunu tetikle
+            localStorage.setItem('zf_profil_boy', document.getElementById('profilBoy').value);
+            localStorage.setItem('zf_profil_hedef', document.getElementById('profilHedef').value);
+            localStorage.setItem('zf_profil_yas', document.getElementById('profilYas').value);
+            localStorage.setItem('zf_profil_cinsiyet', document.getElementById('profilCinsiyet').value);
             metabolizmaVeTahminHesapla();
         }
 
         function profilVerileriniYukle() {
             document.getElementById('profilBoy').value = localStorage.getItem('zf_profil_boy') || "";
             document.getElementById('profilHedef').value = localStorage.getItem('zf_profil_hedef') || "";
+            document.getElementById('profilYas').value = localStorage.getItem('zf_profil_yas') || "";
+            document.getElementById('profilCinsiyet').value = localStorage.getItem('zf_profil_cinsiyet') || "erkek";
         }
 
         function yerelGorevleriYukle() {
@@ -358,7 +365,7 @@
             dinamikGorevArayüzeEkle(gorevMetni);
             input.value = "";
             sayacGuncelle();
-            showToast("Yeni özel alışkanlık listeye eklendi.");
+            showToast("Yeni özel alışkanlık eklemesi başarılı.");
         }
 
         function dinamikGorevArayüzeEkle(text) {
@@ -375,22 +382,29 @@
             liste.insertAdjacentHTML('beforeend', yeniGorevHTML);
         }
 
-        // TAHMİN VE METABOLİZMA MOTORU (ALGORİTMA)
         let globalSonKilo = null;
         let globalGecmisVeriler = [];
 
+        // TAM DİNAMİK YAŞ VE CİNSİYET ENTEGRASYONLU HESAPLAMA MOTORU
         function metabolizmaVeTahminHesapla() {
             const boy = parseFloat(document.getElementById('profilBoy').value);
             const hedef = parseFloat(document.getElementById('profilHedef').value);
+            const yas = parseFloat(document.getElementById('profilYas').value) || 21; // fallback
+            const cinsiyet = document.getElementById('profilCinsiyet').value;
             
             if(!globalSonKilo || !boy) {
                 document.getElementById('bmrGosterge').innerHTML = `--- <span class="text-xs">kcal</span>`;
                 return;
             }
 
-            // Harris-Benedict Formülü (Erkek için BMR Hesabı)
-            // BMR = 88.362 + (13.397 x kilo) + (4.799 x boy) - (5.677 x yaş[21])
-            const bmr = 88.362 + (13.397 * globalSonKilo) + (4.799 * boy) - (5.677 * 21);
+            // Gelişmiş Harris-Benedict Denklem Varyasyonu
+            let bmr = 0;
+            if(cinsiyet === "erkek") {
+                bmr = 88.362 + (13.397 * globalSonKilo) + (4.799 * boy) - (5.677 * yas);
+            } else {
+                bmr = 447.593 + (9.247 * globalSonKilo) + (3.098 * boy) - (4.330 * yas);
+            }
+
             document.getElementById('bmrGosterge').innerHTML = `${Math.round(bmr)} <span class="text-xs">kcal</span>`;
 
             if(!hedef) return;
@@ -406,7 +420,6 @@
                 return;
             }
 
-            // Gelişmiş Tahmin Algoritması (Son verilerden ortalama kalori açığı tespiti)
             if(globalGecmisVeriler.length >= 2) {
                 let toplamKalori = 0;
                 let kaloriGirenGunSayisi = 0;
@@ -416,15 +429,14 @@
                 });
 
                 const ortalamaAlinanKalori = kaloriGirenGunSayisi > 0 ? (toplamKalori / kaloriGirenGunSayisi) : bmr;
-                const aktifYakitTuketimi = bmr * 1.2; // Hafif hareketlilik çarpanı
+                const aktifYakitTuketimi = bmr * 1.2;
                 const gunlukKaloriAcigi = aktifYakitTuketimi - ortalamaAlinanKalori;
 
                 if(gunlukKaloriAcigi > 100) {
-                    // 1 kg yağ yaklaşık 7700 kcal enerjiye eşittir
                     const toplamGerekenKaloriAcigi = kalanKilo * 7700;
                     const tahminiGun = Math.ceil(toplamGerekenKaloriAcigi / gunlukKaloriAcigi);
                     
-                    tahminKutusu.innerText = `Mevcut kalori açığıyla yaklaşılan süre: ${tahminiGun} gün. 🚀`;
+                    tahminKutusu.innerText = `Mevcut tempoyla kalan süre: ${tahminiGun} gün. 🚀`;
                     tahminKutusu.className = "text-sm font-bold text-[#34d399] mt-0.5";
                 } else {
                     tahminKutusu.innerText = "Kalori alımı yüksek, kalori açığı oluşturun cano.";
@@ -451,8 +463,8 @@
             }
 
             globalGecmisVeriler = data;
-            globalSonKilo = data[data.length - 1].kilo; // En güncel kiloyu alıyoruz
-            metabolizmaVeTahminHesapla(); // Veri gelince hesaplamaları ateşle
+            globalSonKilo = data[data.length - 1].kilo;
+            metabolizmaVeTahminHesapla();
 
             const tabloVerisi = [...data].reverse();
             tabloGövde.innerHTML = "";
@@ -515,7 +527,7 @@
                             pointBackgroundColor: '#34d399',
                             pointRadius: 4,
                             tension: 0.15,
-                            yAxisID: 'yCalori',
+                            yAxisID: 'yKalori',
                         }
                     ]
                 },
