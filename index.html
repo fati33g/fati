@@ -56,7 +56,7 @@
         <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">STATBURN</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.16</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.17</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
@@ -266,15 +266,18 @@
         let globalSonKilo = null;
         let globalGecmisVeriler = [];
 
-        window.onload = async function () {
+        // Mobil Uyumlu Güvenli Tetikleyici Zinciri
+        document.addEventListener("DOMContentLoaded", async function() {
+            profilVerileriniYukle();
+            yerelGorevleriYukle(); 
+            
             const { data: { session } } = await sClient.auth.getSession();
             oturumAyarla(session);
+            
             if(session) {
-                profilVerileriniYukle();
-                yerelGorevleriYukle();
-                tabloyuVeGrafigiYukle();
+                await tabloyuVeGrafigiYukle();
             }
-        }
+        });
 
         function showToast(message, type = "success") {
             const container = document.getElementById('toastContainer');
@@ -297,7 +300,6 @@
         function modalAc() { document.getElementById('modalOverlay').classList.remove('hidden'); }
         function modalKapat() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
-        // Düzenleme Modali Fonksiyonları (Custom Popup)
         function editModalAc(eskiText) {
             document.getElementById('editModalEskiMetin').value = eskiText;
             document.getElementById('editModalInput').value = eskiText;
@@ -329,7 +331,6 @@
                 localStorage.setItem('zf_checkbox_durumlari', JSON.stringify(tikDurumlari));
             }
 
-            document.getElementById('gorevListesi').innerHTML = "";
             yerelGorevleriYukle();
             editModalKapat();
             showToast("Alışkanlık ismi başarıyla güncellendi.");
@@ -346,7 +347,9 @@
                 showToast("Tüm geçmiş veriler başarıyla temizlendi.");
                 document.querySelectorAll('.gorev-checkbox').forEach(cb => cb.checked = false);
                 localStorage.removeItem('zf_checkbox_durumlari');
-                tabloyuVeGrafigiYukle();
+                globalSonKilo = null;
+                globalGecmisVeriler = [];
+                await tabloyuVeGrafigiYukle();
                 sayacGuncelle();
             }
         }
@@ -383,6 +386,7 @@
             
             checkboxes.forEach(cb => {
                 const parentDiv = cb.closest('[data-custom-item]');
+                if (!parentDiv) return;
                 const label = parentDiv.querySelector('.durum-label');
                 const gAdi = cb.getAttribute('data-gorev-adi');
                 
@@ -390,16 +394,17 @@
 
                 if(cb.checked) {
                     yapilan++;
-                    label.innerText = "Tamamlandı";
-                    label.className = "text-[10px] font-semibold bg-emerald-500/10 text-[#34d399] border border-[#34d399]/20 px-2 py-0.5 rounded-full durum-label";
+                    if(label) label.innerText = "Tamamlandı";
+                    if(label) label.className = "text-[10px] font-semibold bg-emerald-500/10 text-[#34d399] border border-[#34d399]/20 px-2 py-0.5 rounded-full durum-label";
                 } else {
-                    label.innerText = "Bekliyor";
-                    label.className = "text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label";
+                    if(label) label.innerText = "Bekliyor";
+                    if(label) label.className = "text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label";
                 }
             });
             
             localStorage.setItem('zf_checkbox_durumlari', JSON.stringify(durumlar));
-            document.getElementById('gorevSayac').innerText = `${yapilan} / ${checkboxes.length} Yapıldı`;
+            const counterEl = document.getElementById('gorevSayac');
+            if(counterEl) counterEl.innerText = `${yapilan} / ${checkboxes.length} Yapıldı`;
         }
 
         function profilVerileriniKaydet() {
@@ -420,6 +425,7 @@
         }
 
         function yerelGorevleriYukle() {
+            document.getElementById('gorevListesi').innerHTML = "";
             const ekGorevler = JSON.parse(localStorage.getItem('zf_ek_gorevler')) || [];
             ekGorevler.forEach(text => dinamikGorevArayüzeEkle(text));
             
@@ -492,22 +498,24 @@
             const cinsiyet = document.getElementById('profilCinsiyet').value;
             const aktiviteCarpani = parseFloat(document.getElementById('profilAktivite').value) || 1.2;
             
-            if(!globalSonKilo || !boy) {
+            const kütleReferans = globalSonKilo ? globalSonKilo : (hedef ? hedef : 75);
+
+            if(!boy) {
                 document.getElementById('bmrGosterge').innerHTML = `--- <span class="text-xs">kcal</span>`;
                 return;
             }
 
             let bmr = 0;
             if(cinsiyet === "erkek") {
-                bmr = (10 * globalSonKilo) + (6.25 * boy) - (5 * yas) + 5;
+                bmr = (10 * kütleReferans) + (6.25 * boy) - (5 * yas) + 5;
             } else {
-                bmr = (10 * globalSonKilo) + (6.25 * boy) - (5 * yas) - 161;
+                bmr = (10 * kütleReferans) + (6.25 * boy) - (5 * yas) - 161;
             }
 
             const tdee = bmr * aktiviteCarpani;
             document.getElementById('bmrGosterge').innerHTML = `${Math.round(tdee)} <span class="text-xs">kcal</span>`;
 
-            if(!hedef) return;
+            if(!hedef || !globalSonKilo) return;
 
             const kiloFarki = hedef - globalSonKilo;
             const kalanKiloKutusu = document.getElementById('hedefeKalanGosterge');
@@ -581,6 +589,7 @@
 
             globalGecmisVeriler = data;
             globalSonKilo = data[data.length - 1].kilo;
+            
             metabolizmaVeTahminHesapla();
 
             const tabloVerisi = [...data].reverse();
@@ -675,7 +684,6 @@
             });
         }
 
-        // ESNEK KİLO VE KALORİ GİRİŞ MOTORU (Kapsamlı Birleştirme Mantığı)
         async function veriyiSupabaseKaydet() {
             const kiloVal = document.getElementById('kiloInput').value;
             const kaloriVal = document.getElementById('kaloriInput').value;
@@ -708,16 +716,13 @@
             };
 
             if (mevcutKayit) {
-                // Gün içinde güncelleme yapılıyorsa (Patch mantığı):
                 payload.kilo = kiloVal ? parseFloat(kiloVal) : mevcutKayit.kilo;
                 payload.kalori = kaloriVal ? parseInt(kaloriVal) : mevcutKayit.kalori;
             } else {
-                // Günün İLK kaydı açılıyorsa:
                 if (kiloVal) {
                     payload.kilo = parseFloat(kiloVal);
                 } else {
-                    // Sadece kalori girildiyse, kilonun sıfırlanmaması için geçmişteki en son kiloyu taşı
-                    payload.kilo = globalSonKilo ? globalSonKilo : 70; 
+                    payload.kilo = globalSonKilo ? globalSonKilo : 75; 
                 }
                 payload.kalori = kaloriVal ? parseInt(kaloriVal) : null;
             }
@@ -737,7 +742,7 @@
                 showToast("Günlük veriler başarıyla eşitlendi.");
                 document.getElementById('kiloInput').value = "";
                 document.getElementById('kaloriInput').value = "";
-                tabloyuVeGrafigiYukle();
+                await tabloyuVeGrafigiYukle();
             }
         }
     </script>
