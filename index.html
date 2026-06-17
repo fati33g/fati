@@ -38,7 +38,7 @@
         <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">STATBURN</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.12</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.13</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
@@ -200,26 +200,11 @@
                         <div class="space-y-3 w-full">
                             <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                                 <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Bugünün Alışkanlıkları</span>
-                                <span class="text-[11px] bg-[#1f2937] border border-gray-700 text-gray-200 px-2.5 py-0.5 rounded-full font-medium" id="gorevSayac">0 / 2 Yapıldı</span>
+                                <span class="text-[11px] bg-[#1f2937] border border-gray-700 text-gray-200 px-2.5 py-0.5 rounded-full font-medium" id="gorevSayac">0 / 0 Yapıldı</span>
                             </div>
                             
                             <div id="gorevListesi" class="space-y-2 w-full max-h-[150px] overflow-y-auto pr-1">
-                                <div data-custom-item="false" class="flex items-center justify-between p-3 bg-[#1f2937]/30 border border-gray-700 hover:border-gray-600 rounded-xl transition group shadow-sm">
-                                    <label class="flex items-center space-x-3 flex-1 cursor-pointer">
-                                        <input type="checkbox" data-gorev-adi="45 Dk Aç Karnına Yürüyüş" onchange="sayacGuncelle()" class="w-4.5 h-4.5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
-                                        <span class="text-xs text-gray-200 font-medium group-hover:text-white transition">🏃‍♂️ 45 Dk Yürüyüş</span>
-                                    </label>
-                                    <span class="text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label">Bekliyor</span>
                                 </div>
-
-                                <div data-custom-item="false" class="flex items-center justify-between p-3 bg-[#1f2937]/30 border border-gray-700 hover:border-gray-600 rounded-xl transition group shadow-sm">
-                                    <label class="flex items-center space-x-3 flex-1 cursor-pointer">
-                                        <input type="checkbox" data-gorev-adi="Dambıl Antrenmanı" onchange="sayacGuncelle()" class="w-4.5 h-4.5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
-                                        <span class="text-xs text-gray-200 font-medium group-hover:text-white transition">🏋️‍♂️ Dambıl Antrenmanı</span>
-                                    </label>
-                                    <span class="text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label">Bekliyor</span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="flex space-x-2 w-full pt-3 border-t border-gray-800/40 mt-3">
@@ -261,15 +246,16 @@
         const sClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let myChart = null;
 
-        window.onload = async function () {
+        // Mobil ve masaüstü senkronizasyonunu garantiye alan kök yükleyici
+        document.addEventListener("DOMContentLoaded", async function() {
+            profilVerileriniYukle();
             const { data: { session } } = await sClient.auth.getSession();
             oturumAyarla(session);
             if(session) {
-                profilVerileriniYukle();
                 yerelGorevleriYukle();
                 tabloyuVeGrafigiYukle();
             }
-        }
+        });
 
         function showToast(message, type = "success") {
             const container = document.getElementById('toastContainer');
@@ -374,6 +360,7 @@
             document.getElementById('profilYas').value = localStorage.getItem('zf_profil_yas') || "";
             document.getElementById('profilCinsiyet').value = localStorage.getItem('zf_profil_cinsiyet') || "erkek";
             document.getElementById('profilAktivite').value = localStorage.getItem('zf_profil_aktivite') || "1.2";
+            metabolizmaVeTahminHesapla();
         }
 
         function yerelGorevleriYukle() {
@@ -411,18 +398,45 @@
         function dinamikGorevArayüzeEkle(text) {
             const liste = document.getElementById('gorevListesi');
             const yeniGorevHTML = `
-                <div data-custom-item="true" data-text-id="${text}" class="flex items-center justify-between p-3 bg-[#1f2937]/30 border border-gray-700 hover:border-gray-600 rounded-xl transition group shadow-sm">
+                <div data-custom-item="true" data-text-id="${text}" class="flex items-center justify-between p-3 bg-[#1f2937]/30 border border-gray-700 hover:border-gray-600 rounded-xl transition group shadow-sm w-full">
                     <label class="flex items-center space-x-3 flex-1 cursor-pointer">
                         <input type="checkbox" data-gorev-adi="${text}" onchange="sayacGuncelle()" class="w-4.5 h-4.5 rounded border-gray-600 text-[#34d399] bg-gray-900 cursor-pointer gorev-checkbox">
-                        <span class="text-xs text-gray-200 font-medium group-hover:text-white transition">✨ ${text}</span>
+                        <span id="textSpan-${text}" class="text-xs text-gray-200 font-medium group-hover:text-white transition">${text}</span>
                     </label>
-                    <div class="flex items-center space-x-2 shrink-0">
+                    <div class="flex items-center space-x-2.5 shrink-0 ml-2">
                         <span class="text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-750 px-2 py-0.5 rounded-full durum-label">Bekliyor</span>
-                        <button onclick="gorevSil('${text}')" class="text-gray-500 hover:text-rose-400 transition text-xs p-1 cursor-pointer" title="Alışkanlığı Sil">🗑️</button>
+                        <button onclick="gorevDuzenle('${text}')" class="text-gray-400 hover:text-[#38bdf8] transition text-xs p-1 cursor-pointer" title="Alışkanlığı Düzenle">✏️</button>
+                        <button onclick="gorevSil('${text}')" class="text-gray-400 hover:text-rose-400 transition text-xs p-1 cursor-pointer" title="Alışkanlığı Sil">🗑️</button>
                     </div>
                 </div>
             `;
             liste.insertAdjacentHTML('beforeend', yeniGorevHTML);
+        }
+
+        function gorevDuzenle(eskiText) {
+            const yeniMetin = prompt("Alışkanlık ismini güncelleyin:", eskiText);
+            if (!yeniMetin || yeniMetin.trim() === "" || yeniMetin === eskiText) return;
+            
+            const temizYeniMetin = yeniMetin.trim();
+
+            let ekGorevler = JSON.parse(localStorage.getItem('zf_ek_gorevler')) || [];
+            const idx = ekGorevler.indexOf(eskiText);
+            if (idx !== -1) {
+                ekGorevler[idx] = temizYeniMetin;
+                localStorage.setItem('zf_ek_gorevler', JSON.stringify(ekGorevler));
+            }
+
+            let tikDurumlari = JSON.parse(localStorage.getItem('zf_checkbox_durumlari')) || {};
+            if (tikDurumlari[eskiText] !== undefined) {
+                tikDurumlari[temizYeniMetin] = tikDurumlari[eskiText];
+                delete tikDurumlari[eskiText];
+                localStorage.setItem('zf_checkbox_durumlari', JSON.stringify(tikDurumlari));
+            }
+
+            // Arayüzü tazelemek için temizleyip yeniden basıyoruz
+            document.getElementById('gorevListesi').innerHTML = "";
+            yerelGorevleriYukle();
+            showToast("Alışkanlık ismi güncellendi.");
         }
 
         function gorevSil(text) {
