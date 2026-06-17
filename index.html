@@ -38,7 +38,7 @@
         <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#34d399] to-[#38bdf8]">STATBURN</span>
-                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.14</span>
+                <span class="text-xs bg-[#34d399]/10 text-[#34d399] font-semibold px-2.5 py-0.5 rounded-full border border-[#34d399]/20">v1.16</span>
             </div>
             
             <div id="userProfile" class="hidden flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto border-t border-gray-800/50 sm:border-t-0 pt-2 sm:pt-0">
@@ -101,26 +101,23 @@
             <div class="lg:col-span-3 flex flex-col gap-6 h-full justify-between">
                 <div class="bg-[#111827]/60 border border-[#1e293b]/40 p-5 rounded-2xl shadow-md space-y-4 flex-1 flex flex-col justify-between">
                     <div>
-                        <div class="flex justify-between items-center border-b border-gray-800/80 pb-2 mb-3">
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">🎯 Hedef & Profil</span>
-                            <span id="profilKayitDurum" class="text-[10px] text-gray-500 font-medium">Bulutla Senkronize</span>
-                        </div>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block border-b border-gray-800/80 pb-2 mb-3">🎯 Hedef & Profil</span>
                         <div class="grid grid-cols-2 lg:grid-cols-1 gap-3.5">
                             <div>
                                 <label class="text-xs text-gray-400 block mb-1">Boy Uzunluğu (cm)</label>
-                                <input type="number" id="profilBoy" oninput="profilTetikle()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#38bdf8] text-center text-white font-medium" placeholder="Örn: 180">
+                                <input type="number" id="profilBoy" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#38bdf8] text-center text-white font-medium" placeholder="Örn: 180">
                             </div>
                             <div>
                                 <label class="text-xs text-gray-400 block mb-1">Hedef Kilo (kg)</label>
-                                <input type="number" id="profilHedef" oninput="profilTetikle()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center text-white font-medium" placeholder="Örn: 90">
+                                <input type="number" id="profilHedef" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-center text-white font-medium" placeholder="Örn: 90">
                             </div>
                             <div>
                                 <label class="text-xs text-gray-400 block mb-1">Mevcut Yaş</label>
-                                <input type="number" id="profilYas" oninput="profilTetikle()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-amber-400 text-center text-white font-medium" placeholder="Örn: 21">
+                                <input type="number" id="profilYas" oninput="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/40 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-amber-400 text-center text-white font-medium" placeholder="Örn: 21">
                             </div>
                             <div>
                                 <label class="text-xs text-gray-400 block mb-1">Biyolojik Cinsiyet</label>
-                                <select id="profilCinsiyet" onchange="profilTetikle()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-purple-400 text-center text-white font-medium cursor-pointer">
+                                <select id="profilCinsiyet" onchange="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-purple-400 text-center text-white font-medium cursor-pointer">
                                     <option value="erkek">Erkek</option>
                                     <option value="kadin">Kadın</option>
                                 </select>
@@ -130,7 +127,7 @@
                     
                     <div class="pt-3 border-t border-gray-800/40 mt-3">
                         <label class="text-xs text-gray-400 block mb-1">Haftalık Aktivite Seviyesi</label>
-                        <select id="profilAktivite" onchange="profilTetikle()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-white font-medium cursor-pointer">
+                        <select id="profilAktivite" onchange="profilVerileriniKaydet()" class="w-full bg-[#1f2937]/50 border border-gray-700 p-2.5 rounded-xl text-sm focus:outline-none focus:border-[#34d399] text-white font-medium cursor-pointer">
                             <option value="1.2">Egzersiz Yok (Masa Başı İş)</option>
                             <option value="1.375">Hafif Aktif (Haftada 1-3 Gün Spor)</option>
                             <option value="1.55">Orta Aktif (Haftada 3-5 Gün Spor)</option>
@@ -248,19 +245,18 @@
 
         const sClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let myChart = null;
-        let profilTimer = null; // Debounce zamanlayıcısı
+        let globalSonKilo = null;
+        let globalGecmisVeriler = [];
 
-        // Mobil ve masaüstü senkronizasyonunu garantiye alan kök yükleyici
-        document.addEventListener("DOMContentLoaded", async function() {
-            profilVerileriniLokaldenYukle(); // Supabase'den gelene kadar boş kalmasın diye ilk lokalden yükle
+        window.onload = async function () {
             const { data: { session } } = await sClient.auth.getSession();
             oturumAyarla(session);
             if(session) {
+                profilVerileriniYukle();
                 yerelGorevleriYukle();
-                await veritabanindanProfilYukle(); // Kilit nokta: Telefonu besleyen bulut verisi
                 tabloyuVeGrafigiYukle();
             }
-        });
+        }
 
         function showToast(message, type = "success") {
             const container = document.getElementById('toastContainer');
@@ -350,96 +346,21 @@
             document.getElementById('gorevSayac').innerText = `${yapilan} / ${checkboxes.length} Yapıldı`;
         }
 
-        // Kullanıcı veri girerken her harfte istek atmaması için debounce uyguluyoruz
-        function profilTetikle() {
-            document.getElementById('profilKayitDurum').innerText = "Değişiklikler yapılıyor...";
-            document.getElementById('profilKayitDurum').className = "text-[10px] text-amber-400 font-medium";
-            
-            // Lokale hemen yaz ki arayüz anlık hesaplama yapsın
+        function profilVerileriniKaydet() {
             localStorage.setItem('zf_profil_boy', document.getElementById('profilBoy').value);
             localStorage.setItem('zf_profil_hedef', document.getElementById('profilHedef').value);
             localStorage.setItem('zf_profil_yas', document.getElementById('profilYas').value);
             localStorage.setItem('zf_profil_cinsiyet', document.getElementById('profilCinsiyet').value);
             localStorage.setItem('zf_profil_aktivite', document.getElementById('profilAktivite').value);
             metabolizmaVeTahminHesapla();
-
-            clearTimeout(profilTimer);
-            profilTimer = setTimeout(veritabaninaProfilKaydet, 1000); // Kullanıcı yazmayı bırakınca 1 sn sonra buluta at
         }
 
-        async function veritabaninaProfilKaydet() {
-            const { data: { user } } = await sClient.auth.getUser();
-            if (!user) return;
-
-            const payload = {
-                user_id: user.id,
-                boy: parseFloat(document.getElementById('profilBoy').value) || null,
-                hedef_kilo: parseFloat(document.getElementById('profilHedef').value) || null,
-                yas: parseInt(document.getElementById('profilYas').value) || null,
-                cinsiyet: document.getElementById('profilCinsiyet').value,
-                aktivite: parseFloat(document.getElementById('profilAktivite').value) || 1.2
-            };
-
-            // Önce bu kullanıcının kaydı var mı bak
-            const { data: mevcut } = await sClient
-                .from('statburn_profil')
-                .select('id')
-                .eq('user_id', user.id)
-                .maybeSingle();
-
-            let error;
-            if (mevcut) {
-                ({ error } = await sClient.from('statburn_profil').update(payload).eq('id', mevcut.id));
-            } else {
-                ({ error } = await sClient.from('statburn_profil').insert([payload]));
-            }
-
-            if (error) {
-                document.getElementById('profilKayitDurum').innerText = "Senkronizasyon Hatası!";
-                document.getElementById('profilKayitDurum').className = "text-[10px] text-rose-400 font-medium";
-            } else {
-                document.getElementById('profilKayitDurum').innerText = "Bulutla Senkronize";
-                document.getElementById('profilKayitDurum').className = "text-[10px] text-emerald-400 font-medium";
-            }
-        }
-
-        async function veritabanindanProfilYukle() {
-            const { data: { user } } = await sClient.auth.getUser();
-            if (!user) return;
-
-            const { data, error } = await sClient
-                .from('statburn_profil')
-                .select('*')
-                .eq('user_id', user.id)
-                .maybeSingle();
-
-            if (data && !error) {
-                document.getElementById('profilBoy').value = data.boy || "";
-                document.getElementById('profilHedef').value = data.hedef_kilo || "";
-                document.getElementById('profilYas').value = data.yas || "";
-                document.getElementById('profilCinsiyet').value = data.cinsiyet || "erkek";
-                document.getElementById('profilAktivite').value = data.aktivite || "1.2";
-                
-                // Lokali de buluttan gelenle güncelle ki eşitleme tam olsun
-                localStorage.setItem('zf_profil_boy', data.boy || "");
-                localStorage.setItem('zf_profil_hedef', data.hedef_kilo || "");
-                localStorage.setItem('zf_profil_yas', data.yas || "");
-                localStorage.setItem('zf_profil_cinsiyet', data.cinsiyet || "erkek");
-                localStorage.setItem('zf_profil_aktivite', data.aktivite || "1.2");
-                
-                document.getElementById('profilKayitDurum').innerText = "Bulutla Senkronize";
-                document.getElementById('profilKayitDurum').className = "text-[10px] text-emerald-400 font-medium";
-                metabolizmaVeTahminHesapla();
-            }
-        }
-
-        function profilVerileriniLokaldenYukle() {
+        function profilVerileriniYukle() {
             document.getElementById('profilBoy').value = localStorage.getItem('zf_profil_boy') || "";
             document.getElementById('profilHedef').value = localStorage.getItem('zf_profil_hedef') || "";
             document.getElementById('profilYas').value = localStorage.getItem('zf_profil_yas') || "";
             document.getElementById('profilCinsiyet').value = localStorage.getItem('zf_profil_cinsiyet') || "erkek";
             document.getElementById('profilAktivite').value = localStorage.getItem('zf_profil_aktivite') || "1.2";
-            metabolizmaVeTahminHesapla();
         }
 
         function yerelGorevleriYukle() {
@@ -532,9 +453,6 @@
             sayacGuncelle();
             showToast("Alışkanlık kalıcı olarak silindi.", "error");
         }
-
-        let globalSonKilo = null;
-        let globalGecmisVeriler = [];
 
         function metabolizmaVeTahminHesapla() {
             const boy = parseFloat(document.getElementById('profilBoy').value);
@@ -726,35 +644,57 @@
             });
         }
 
+        // ESNEK KİLO VE KALORİ GİRİŞ MOTORU (GÜNCELLENDİ)
         async function veriyiSupabaseKaydet() {
-            const kilo = document.getElementById('kiloInput').value;
-            const kalori = document.getElementById('kaloriInput').value;
+            const kiloVal = document.getElementById('kiloInput').value;
+            const kaloriVal = document.getElementById('kaloriInput').value;
             const tarih = new Date().toLocaleDateString('tr-TR');
 
-            if (!kilo) { showToast("Lütfen kilo bilgisini girin.", "error"); return; }
+            // İki alan birden boşsa hata ver
+            if (!kiloVal && !kaloriVal) { 
+                showToast("Lütfen kilo veya kalori alanlarından en az birini doldurun.", "error"); 
+                return; 
+            }
 
+            const { data: { user } } = await sClient.auth.getUser();
+
+            // Bugünün mevcut kaydı var mı kontrol et
+            const { data: mevcutKayit } = await sClient
+                .from('sprint_takip')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('tarih', tarih)
+                .maybeSingle();
+
+            // Aktivitelerin anlık durumunu paketle
             const gorevPaketi = {};
             document.querySelectorAll('.gorev-checkbox').forEach(cb => {
                 const gAdi = cb.getAttribute('data-gorev-adi');
                 gorevPaketi[gAdi] = cb.checked ? "Yapıldı" : "Yapılmadı";
             });
 
-            const { data: { user } } = await sClient.auth.getUser();
-
-            const { data: mevcutKayit } = await sClient
-                .from('sprint_takip')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('tarih', tarih)
-                .maybeSingle();
-
             let payload = {
                 user_id: user.id,
-                kilo: parseFloat(kilo),
-                kalori: kalori ? parseInt(kalori) : null,
                 tarih: tarih,
                 gorevler: gorevPaketi
             };
+
+            if (mevcutKayit) {
+                // Bugün kayıt ZATEN VARSA (Patch/Merge mantığı):
+                // Yeni kilo girildiyse yenisini yaz, girilmediyse eski kiloyu koru
+                payload.kilo = kiloVal ? parseFloat(kiloVal) : mevcutKayit.kilo;
+                // Yeni kalori girildiyse yenisini yaz, girilmediyse eski kaloriyi koru
+                payload.kalori = kaloriVal ? parseInt(kaloriVal) : mevcutKayit.kalori;
+            } else {
+                // Bugün İLK DEFA kayıt açılıyorsa:
+                if (kiloVal) {
+                    payload.kilo = parseFloat(kiloVal);
+                } else {
+                    // Sadece kalori girildiyse, kilonun bozulmaması için geçmişteki en son kiloyu referans al
+                    payload.kilo = globalSonKilo ? globalSonKilo : 70; 
+                }
+                payload.kalori = kaloriVal ? parseInt(kaloriVal) : null;
+            }
 
             let sorgu;
             if (mevcutKayit) {
